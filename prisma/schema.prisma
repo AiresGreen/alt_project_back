@@ -1,30 +1,299 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model answer {
+  id      Int     @id @default(autoincrement())
+  content String? @db.Text
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+model application {
+  id                 Int      @default(autoincrement())
+  send_date          DateTime @db.DateTime(0)
+  received_return    String?  @db.VarChar(255)
+  number_of_reminder Int
+  survey_id          Int
+  offer_id           Int
+  user_id            Int
+  resume_id          Int
+
+  @@id([id, survey_id, offer_id, user_id, resume_id])
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+model curriculum_vitae {
+  id           Int       @default(autoincrement())
+  photo        String    @db.VarChar(250)
+  name         String    @db.VarChar(255)
+  firstname    String    @db.VarChar(255)
+  mail         String    @db.VarChar(320)
+  street       String    @db.VarChar(250)
+  zip_code     String    @db.VarChar(10)
+  city         String    @db.VarChar(255)
+  phone_number String    @unique @db.VarChar(20)
+  created_at   DateTime  @db.DateTime(0)
+  updated_at   DateTime? @db.DateTime(0)
+  user_id      Int
+
+  @@id([id, user_id])
+}
+
+model curriculum_vitae_has_education {
+  curriculum_vitae_id      Int
+  curriculum_vitae_user_id Int
+  education_id             Int
+  education_user_id        Int
+
+  @@id([curriculum_vitae_id, curriculum_vitae_user_id, education_id, education_user_id])
+}
+
+model curriculum_vitae_has_experience {
+  curriculum_vitae_id      Int
+  curriculum_vitae_user_id Int
+  experience_id            Int
+  experience_user_id       Int
+  experience_user_id1      Int
+
+  @@id([curriculum_vitae_id, curriculum_vitae_user_id, experience_id, experience_user_id, experience_user_id1])
+}
+
+model curriculum_vitae_has_hobby {
+  curriculum_vitae_id      Int
+  curriculum_vitae_user_id Int
+  hobby_id                 Int
+  hobby_user_id            Int
+
+  @@id([curriculum_vitae_id, curriculum_vitae_user_id, hobby_id, hobby_user_id])
+}
+
+model curriculum_vitae_has_language {
+  curriculum_vitae_id      Int
+  curriculum_vitae_user_id Int
+  language_id              Int
+
+  @@id([curriculum_vitae_id, curriculum_vitae_user_id, language_id])
+}
+
+model curriculum_vitae_has_project {
+  curriculum_vitae_id      Int
+  curriculum_vitae_user_id Int
+  project_id               Int
+  project_user_id          Int
+
+  @@id([curriculum_vitae_id, curriculum_vitae_user_id, project_id, project_user_id])
+}
+
+model curriculum_vitae_has_skill {
+  curriculum_vitae_id      Int
+  curriculum_vitae_user_id Int
+  skill_id                 Int
+  skill_user_id            Int
+
+  @@id([curriculum_vitae_id, curriculum_vitae_user_id, skill_id, skill_user_id])
+}
+
+model curriculum_vitae_has_useful_information {
+  curriculum_vitae_id        Int
+  curriculum_vitae_user_id   Int
+  useful_information_id      Int
+  useful_information_user_id Int
+
+  @@id([curriculum_vitae_id, curriculum_vitae_user_id, useful_information_id, useful_information_user_id])
+}
+
+model education {
+  id         Int       @default(autoincrement())
+  title      String    @db.VarChar(255)
+  begin_year DateTime  @db.Date
+  end_year   DateTime  @db.Date
+  place      String    @db.VarChar(255)
+  topics     String    @db.VarChar(250)
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  user_id    Int
+
+  @@id([id, user_id])
+}
+
+model enterprise {
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(255)
+  employees   String @db.VarChar(50)
+  description String @db.Text
+}
+
+model experience {
+  id         Int       @default(autoincrement())
+  title      String    @db.VarChar(255)
+  begin_year DateTime  @db.Date
+  end_year   DateTime  @db.Date
+  place      String    @db.VarChar(255)
+  topics     String    @db.VarChar(255)
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  user_id    Int
+
+  @@id([id, user_id])
+}
+
+model hobby {
+  id      Int     @default(autoincrement())
+  name    String? @db.VarChar(255)
+  user_id Int
+
+  @@id([id, user_id])
+}
+
+model language {
+  id                Int                        @id @unique(map: "id_UNIQUE") @default(autoincrement())
+  name              String                     @db.VarChar(50)
+  level_of_language language_level_of_language
+}
+
+model level {
+  id    Int         @id @default(autoincrement())
+  grade level_grade @default(pas_admin)
+}
+
+model offer {
+  id               Int      @default(autoincrement())
+  title            String   @db.VarChar(255)
+  description      String   @db.Text
+  publication_date DateTime @db.DateTime(0)
+  user_id          Int
+  enterprise_id    Int
+
+  @@id([id, user_id, enterprise_id])
+}
+
+model profil {
+  id           Int       @id @default(autoincrement())
+  picture      String    @db.VarChar(250)
+  street       String    @db.VarChar(250)
+  zip_code     String    @db.VarChar(10)
+  city         String    @db.VarChar(100)
+  phone_number String    @unique(map: "phone_number_UNIQUE") @db.VarChar(20)
+  created_at   DateTime  @db.DateTime(0)
+  updated_at   DateTime? @db.DateTime(0)
+}
+
+model project {
+  id                Int       @default(autoincrement())
+  name              String    @db.VarChar(255)
+  year_of_beginning DateTime  @db.Date
+  end_year          DateTime  @db.Date
+  place             String    @db.VarChar(255)
+  results           String    @db.VarChar(255)
+  created_at        DateTime  @db.DateTime(0)
+  updated_at        DateTime? @db.DateTime(0)
+  user_id           Int
+
+  @@id([id, user_id])
+}
+
+model question {
+  id      Int     @id @default(autoincrement())
+  content String? @db.Text
+}
+
+model question_has_answer {
+  question_id Int
+  answer_id   Int
+
+  @@id([question_id, answer_id])
+}
+
+model skill {
+  id      Int     @default(autoincrement())
+  name    String? @db.VarChar(255)
+  user_id Int
+
+  @@id([id, user_id])
+}
+
+model survey {
+  id       Int     @id @default(autoincrement())
+  message  String  @db.Text
+  question String  @db.VarChar(255)
+  answer   String? @db.Text
+}
+
+model survey_has_answer {
+  survey_id Int
+  answer_id Int
+
+  @@id([survey_id, answer_id])
+}
+
+model survey_has_question {
+  survey_id   Int
+  question_id Int
+
+  @@id([survey_id, question_id])
+}
+
+model useful_information {
+  id      Int     @default(autoincrement())
+  name    String? @db.VarChar(255)
+  user_id Int
+
+  @@id([id, user_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model user {
+  id         Int         @default(autoincrement())
+  firstname  String      @db.VarChar(50)
+  lastname   String      @db.VarChar(100)
+  email      String      @unique(map: "mail_UNIQUE")
+  password   String      @db.VarChar(255)
+  created_at DateTime    @db.DateTime(0)
+  updated_at DateTime?   @db.DateTime(0)
+  status     user_status @default(inscription_non_valid_e)
+  profil_id  Int
+  level_id   Int
+
+  @@id([id, profil_id, level_id])
+}
+
+model user_has_language {
+  user_id        Int
+  user_profil_id Int
+  user_level_id  Int
+  language_id    Int
+
+  @@id([user_id, user_profil_id, user_level_id, language_id])
+}
+
+model user_has_offer {
+  user_id             Int
+  user_profil_id      Int
+  user_level_id       Int
+  offer_id            Int
+  offer_user_id       Int
+  offer_enterprise_id Int
+
+  @@id([user_id, user_profil_id, user_level_id, offer_id, offer_user_id, offer_enterprise_id])
+}
+
+enum level_grade {
+  admin
+  pas_admin @map("pas admin")
+}
+
+enum language_level_of_language {
+  begginer
+  intermediate
+  advance
+  native
+  fluent
+}
+
+enum user_status {
+  inscription_valid_e     @map("inscription validée")
+  inscription_non_valid_e @map("inscription non-validée")
 }

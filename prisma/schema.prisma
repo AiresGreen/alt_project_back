@@ -30,7 +30,7 @@ model curriculum_vitae {
   photo        String    @db.VarChar(250)
   name         String    @db.VarChar(255)
   firstname    String    @db.VarChar(255)
-  mail         String    @db.VarChar(320)
+  mail         String    @db.VarChar(320) //64+1+255 = 320 - local-part = 64 "a" , @ = 1, domain = 255
   street       String    @db.VarChar(250)
   zip_code     String    @db.VarChar(10)
   city         String    @db.VarChar(255)
@@ -149,7 +149,7 @@ model hobby {
 }
 
 model language {
-  id                Int                        @id @unique(map: "id_UNIQUE") @default(autoincrement())
+  id                Int                        @id @default(autoincrement())
   name              String                     @db.VarChar(50)
   level_of_language language_level_of_language
 }

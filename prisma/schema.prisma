@@ -28,12 +28,12 @@ model application {
 model curriculum_vitae {
   id           Int       @default(autoincrement())
   photo        String    @db.VarChar(250)
-  name         String    @db.VarChar(255)
-  firstname    String    @db.VarChar(255)
+  name         String    @db.VarChar(100)
+  firstname    String    @db.VarChar(100)
   mail         String    @db.VarChar(320) //64+1+255 = 320 - local-part = 64 "a" , @ = 1, domain = 255
   street       String    @db.VarChar(250)
   zip_code     String    @db.VarChar(10)
-  city         String    @db.VarChar(255)
+  city         String    @db.VarChar(100)
   phone_number String    @unique @db.VarChar(20)
   created_at   DateTime  @db.DateTime(0)
   updated_at   DateTime? @db.DateTime(0)
@@ -110,8 +110,8 @@ model education {
   title      String    @db.VarChar(255)
   begin_year DateTime  @db.Date
   end_year   DateTime  @db.Date
-  place      String    @db.VarChar(255)
-  topics     String    @db.VarChar(250)
+  place      String    @db.VarChar(250)
+  topics     String    @db.VarChar(255)
   created_at DateTime  @db.DateTime(0)
   updated_at DateTime? @db.DateTime(0)
   user_id    Int
@@ -247,9 +247,9 @@ model useful_information {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model user {
   id         Int         @default(autoincrement())
-  firstname  String      @db.VarChar(50)
+  firstname  String      @db.VarChar(100)
   lastname   String      @db.VarChar(100)
-  email      String      @unique(map: "mail_UNIQUE")
+  email      String      @unique(map: "mail_UNIQUE") @db.VarChar(320) //64+1+255 = 320 - local-part = 64 "a" , @ = 1, domain = 255
   password   String      @db.VarChar(255)
   created_at DateTime    @db.DateTime(0)
   updated_at DateTime?   @db.DateTime(0)

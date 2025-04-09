@@ -14,7 +14,7 @@ model answer {
 
 model application {
   id                 Int      @default(autoincrement())
-  send_date          DateTime @db.DateTime(0)
+  send_date          DateTime @dafault(now())
   received_return    String?  @db.VarChar(255)
   number_of_reminder Int
   survey_id          Int
@@ -30,13 +30,13 @@ model curriculum_vitae {
   photo        String    @db.VarChar(250)
   name         String    @db.VarChar(100)
   firstname    String    @db.VarChar(100)
-  mail         String    @db.VarChar(320) //64+1+255 = 320 - local-part = 64 "a" , @ = 1, domain = 255
+  mail         String    @db.VarChar(320) //64+1+255 = 320 - local-part = 64 "a" , @ = 1, domain = 255 on peut limité à 150
   street       String    @db.VarChar(250)
   zip_code     String    @db.VarChar(10)
   city         String    @db.VarChar(100)
   phone_number String    @unique @db.VarChar(20)
-  created_at   DateTime  @db.DateTime(0)
-  updated_at   DateTime? @db.DateTime(0)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime? @default(now()) @updatedAt
   user_id      Int
 
   @@id([id, user_id])
@@ -108,12 +108,12 @@ model curriculum_vitae_has_useful_information {
 model education {
   id         Int       @default(autoincrement())
   title      String    @db.VarChar(255)
-  begin_year DateTime  @db.Date
-  end_year   DateTime  @db.Date
+  begin_year Int       @db.TinyInt
+  end_year   Int       @db.TinyInt
   place      String    @db.VarChar(250)
   topics     String    @db.VarChar(255)
-  created_at DateTime  @db.DateTime(0)
-  updated_at DateTime? @db.DateTime(0)
+  created_at DateTime  @default(now())
+  updated_at DateTime? @default(now()) @updatedAt
   user_id    Int
 
   @@id([id, user_id])
@@ -129,12 +129,12 @@ model enterprise {
 model experience {
   id         Int       @default(autoincrement())
   title      String    @db.VarChar(255)
-  begin_year DateTime  @db.Date
-  end_year   DateTime  @db.Date
+  begin_year Int       @db.TinyInt
+  end_year   Int       @db.TinyInt
   place      String    @db.VarChar(255)
   topics     String    @db.VarChar(255)
-  created_at DateTime  @db.DateTime(0)
-  updated_at DateTime? @db.DateTime(0)
+  created_at DateTime  @default(now())
+  updated_at DateTime? @default(now()) @updatedAt
   user_id    Int
 
   @@id([id, user_id])
@@ -163,7 +163,7 @@ model offer {
   id               Int      @default(autoincrement())
   title            String   @db.VarChar(255)
   description      String   @db.Text
-  publication_date DateTime @db.DateTime(0)
+  publication_date DateTime @default(now())
   user_id          Int
   enterprise_id    Int
 
@@ -177,19 +177,19 @@ model profil {
   zip_code     String    @db.VarChar(10)
   city         String    @db.VarChar(100)
   phone_number String    @unique(map: "phone_number_UNIQUE") @db.VarChar(20)
-  created_at   DateTime  @db.DateTime(0)
-  updated_at   DateTime? @db.DateTime(0)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime? @default(now()) @updatedAt
 }
 
 model project {
   id                Int       @default(autoincrement())
   name              String    @db.VarChar(255)
-  year_of_beginning DateTime  @db.Date
-  end_year          DateTime  @db.Date
+  year_of_beginning Int       @db.TinyInt
+  end_year          Int       @db.TinyInt
   place             String    @db.VarChar(255)
   results           String    @db.VarChar(255)
-  created_at        DateTime  @db.DateTime(0)
-  updated_at        DateTime? @db.DateTime(0)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime? @default(now()) @updatedAt
   user_id           Int
 
   @@id([id, user_id])
@@ -251,8 +251,8 @@ model user {
   lastname   String      @db.VarChar(100)
   email      String      @unique(map: "mail_UNIQUE") @db.VarChar(320) //64+1+255 = 320 - local-part = 64 "a" , @ = 1, domain = 255
   password   String      @db.VarChar(255)
-  created_at DateTime    @db.DateTime(0)
-  updated_at DateTime?   @db.DateTime(0)
+  created_at DateTime    @default(now())
+  updated_at DateTime?   @default(now()) @updatedAt
   status     user_status @default(inscription_non_valid_e)
   profil_id  Int
   level_id   Int

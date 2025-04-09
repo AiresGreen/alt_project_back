@@ -28,7 +28,7 @@ model application {
 model curriculum_vitae {
   id           Int       @default(autoincrement())
   photo        String    @db.VarChar(250)
-  name         String    @db.VarChar(100)
+  lastname     String    @db.VarChar(100)
   firstname    String    @db.VarChar(100)
   mail         String    @db.VarChar(320) //64+1+255 = 320 - local-part = 64 "a" , @ = 1, domain = 255 on peut limité à 150
   street       String    @db.VarChar(250)
@@ -286,7 +286,7 @@ enum level_grade {
 }
 
 enum language_level_of_language {
-  begginer
+  beginner
   intermediate
   advance
   native

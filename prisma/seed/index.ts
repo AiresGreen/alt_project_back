@@ -1,5 +1,5 @@
 import {  PrismaClient } from '@prisma/client'
-import { fakerFR as faker } from '@faker-js/faker';
+import {fakerFR, fakerFR as faker} from '@faker-js/faker';
 const prisma = new PrismaClient()
 
 
@@ -41,32 +41,101 @@ async function seedUser(number = 50) {
 
 }
 
-async function seedFormation(number = 5) {
+async function seedCurriculumVitae(number = 3) {
 
-    const formations = [];
+    const curriculumVitaes = [];
 
     while (number) {
         // Creation du faker
-        const formation = {
-            name: faker.commerce.productName()
+        const curriculumVitae = {
+            photo: fakerFR.image.urlPicsumPhotos(),
+            lastname: fakerFR.person.lastName(),
+            firstname: fakerFR.person.firstName(),
+            mail: fakerFR.internet.email(),
+            street: fakerFR.location.street(),
+            zip_code: fakerFR.location.zipCode(),
+            city: fakerFR.location.city(),
+            phone_number: fakerFR.phone.number(),
         }
         // SEED
-        const newTeam = await prisma.formation.upsert({
+        const newUser = await prisma.curriculum_vitae.upsert ({
             where: {
-                name: formation.name
+                phone_number: curriculumVitae.phone_number
             },
             update: {},
             create: {
-                ...formation
+                ...curriculumVitae
             }
         })
         // ajoute dans le tableau des teams
-        formations.push(newTeam);
+        curriculumVitae.push(newUser);
 
         // décrémenter number
         number--; // number = number - 1;
     }
 
-    return formations;
+    return curriculumVitaes;
 
+}
+
+async function seedProfil(number = 5) {
+
+    const profiles = [];
+
+    while (number) {
+        // Creation du faker
+        const profile = {
+            picture: fakerFR.image.urlPicsumPhotos(),
+            street: fakerFR.location.street(),
+            zip_code: fakerFR.location.zipCode(),
+            city: fakerFR.location.city(),
+            phone_number: fakerFR.phone.number(),
+        }
+        // SEED
+        const newUser = await prisma.profil.upsert({
+            where: {
+                phone_number: profile.phone_number
+            },
+            update: {},
+            create: {
+                ...profile
+            }
+        })
+        // ajoute dans le tableau des teams
+        profiles.push(newUser);
+
+        // décrémenter number
+        number--; // number = number - 1;
+    }
+
+    return profiles;
+
+}
+
+async function seedApplication (number = 15) {
+    const applications = [];
+
+    while (number) {
+        // Creation du faker
+        const application = {
+            received_return: fakerFR.lorem.text()
+        }
+        // SEED
+        const newUser = await prisma.application.upsert({
+            where: {
+                id: application.userId
+            },
+            update: {},
+            create: {
+                ...application
+            }
+        })
+        // ajoute dans le tableau des teams
+        applications.push(newUser);
+
+        // décrémenter number
+        number--; // number = number - 1;
+    }
+
+    return applications;
 }

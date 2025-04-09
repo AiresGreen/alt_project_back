@@ -14,8 +14,8 @@ model answer {
 
 model application {
   id                 Int      @default(autoincrement())
-  send_date          DateTime @dafault(now())
-  received_return    String?  @db.VarChar(255)
+  send_date          DateTime @default(now())
+  received_return    Int
   number_of_reminder Int
   survey_id          Int
   offer_id           Int

@@ -8,22 +8,28 @@ import {
     question,
     answer,
     enterprise,
-    survey, user
+    survey,
+    user, curriculum_vitae, $Enums, offer, application, user_has_language, user_has_offer,
+
 } from '@prisma/client'
 import {fakerFR, fakerFR as faker} from '@faker-js/faker'
 
 const prisma = new PrismaClient()
 
+// === Profil ===
 async function seedProfil(n = 10): Promise<profil[]> {
     const profils: profil[] = []
     while (n) {
-        const newProfil = await prisma.profil.create({
-            data: {
+        const phone_number = faker.phone.number()
+        const newProfil = await prisma.profil.upsert({
+            where: {phone_number},
+            update: {},
+            create: {
                 picture: faker.image.urlPicsumPhotos(),
                 street: faker.location.street(),
                 zip_code: faker.location.zipCode(),
                 city: faker.location.city(),
-                phone_number: faker.phone.number(),
+                phone_number,
                 created_at: faker.date.past(),
                 updated_at: faker.date.recent()
             }
@@ -34,43 +40,103 @@ async function seedProfil(n = 10): Promise<profil[]> {
     return profils
 }
 
-
-async function seedLanguages() {
-    const languageNames = [
-        'Français', 'Anglais', 'Espagnol', 'Allemand', 'Italien',
-        'Russe', 'Chinois', 'Japonais', 'Arabe', 'Hindi',
-        'Portugais', 'Néerlandais', 'Polonais', 'Grec', 'Turc',
-        'Coréen', 'Vietnamien', 'Suédois', 'Norvégien', 'Danois'
-    ];
-
-    const levels = Object.values(language_level_of_language);
-
-    for (const name of languageNames) {
-        await prisma.language.upsert({
-            where: {name},
-            update: {},
-            create: {
-                name,
-                level: fakerFR.helpers.arrayElement(levels),
-            },
-        });
-    }
-}
-
+// === Level ===
 async function seedLevel() {
     const grades = [level_grade.admin, level_grade.pas_admin];
+    const levels: level[] = []
 
     for (const grade of grades) {
-        await prisma.level.upsert({
+        const newLevel = await prisma.level.upsert({
             where: {grade},
             update: {},
             create: {grade}
         });
+        levels.push(newLevel)
     }
-
+    return levels
 }
 
-async function seedQuestion(n = 20): Promise<question[]> {
+// === User ===
+async function seedUser(n = 10, profils: profil[], levels: level[]) {
+    const users: user[] = []
+    while (n) {
+        const email = faker.internet.email()
+        const newUser = await prisma.user.upsert({
+            where: {email},
+            update: {},
+            create: {
+                firstname: faker.person.firstName(),
+                lastname: faker.person.lastName(),
+                email,
+                password: faker.internet.password(),
+                created_at: faker.date.past(),
+                updated_at: faker.date.recent(),
+                profil: {
+                    connect: {id: faker.helpers.arrayElement(profils).id}
+                },
+                level: {
+                    connect: {id: faker.helpers.arrayElement(levels).id}
+                }
+            }
+        })
+        users.push(newUser)
+        n--
+    }
+    return users
+}
+
+// === CV ===
+async function seedCurriculumVitae(n = 10, users: user[]) {
+    const cvs: curriculum_vitae[] = []
+    while (n) {
+        const phone_number = faker.phone.number()
+        const newCV = await prisma.curriculum_vitae.upsert({
+            where: {phone_number},
+            update: {},
+            create: {
+                photo: faker.image.urlPicsumPhotos(),
+                lastname: faker.person.lastName(),
+                firstname: faker.person.firstName(),
+                mail: faker.internet.email(),
+                street: faker.location.street(),
+                zip_code: faker.location.zipCode(),
+                city: faker.location.city(),
+                phone_number,
+                created_at: faker.date.past(),
+                updated_at: faker.date.recent(),
+                user: {
+                    connect: {id: faker.helpers.arrayElement(users).id}
+                }
+            }
+        })
+        cvs.push(newCV)
+        n--
+    }
+    return cvs
+}
+
+// === Language ===
+async function seedLanguage(n = 10) {
+    const languages: language[] = [];
+    const levels = Object.values(language_level_of_language);
+
+    while (n) {
+        const name = faker.location.language().name;
+        const level = faker.helpers.arrayElement(levels);
+        const newLanguage: { id: number, name: string, level: $Enums.language_level_of_language } = await prisma.language.create({
+            data: {
+                name,
+                level
+            }
+        });
+        languages.push(newLanguage);
+        n--;
+    }
+    return languages;
+}
+
+// === Question ===
+async function seedQuestion(n = 20) {
     const questions: question[] = []
     while (n) {
         const newQuestion = await prisma.question.create({
@@ -84,7 +150,8 @@ async function seedQuestion(n = 20): Promise<question[]> {
     return questions
 }
 
-async function seedAnswer(n = 20): Promise<answer[]> {
+// === Answer===
+async function seedAnswer(n = 20) {
     const answers: answer[] = []
     while (n) {
         const newAnswer = await prisma.answer.create({
@@ -98,13 +165,14 @@ async function seedAnswer(n = 20): Promise<answer[]> {
     return answers
 }
 
-async function seedEnterprise(n = 20): Promise<enterprise[]> {
+// === Enterprise ===
+async function seedEnterprise(n = 20) {
     const enterprises: enterprise[] = []
     while (n) {
         const newEnterprise = await prisma.enterprise.create({
             data: {
                 name: faker.company.name(),
-                employees: faker.string.numeric(),
+                employees: faker.number.int({min: 1, max: 500}).toString(),
                 description: faker.company.catchPhrase()
             }
         })
@@ -114,7 +182,8 @@ async function seedEnterprise(n = 20): Promise<enterprise[]> {
     return enterprises
 }
 
-async function seedSurvey(n = 10): Promise<survey[]> {
+// === SUrvey ===
+async function seedSurvey(n = 10) {
     const surveys: survey[] = []
     while (n) {
         const newSurvey = await prisma.survey.create({
@@ -130,44 +199,244 @@ async function seedSurvey(n = 10): Promise<survey[]> {
     return surveys
 }
 
-async function seedUser(n = 10, profils: profil[], levels: level[]): Promise<user[]> {
-    const users: user[] = []
+// === Offer ===
+async function seedOffer(n = 10, users: user[], enterprises: enterprise[]) {
+    const offers: offer[] = []
     while (n) {
-        const newUser = await prisma.user.create({
+        const newOffer = await prisma.offer.create({
             data: {
-                firstname: faker.person.firstName(),
-                lastname: faker.person.lastName(),
-                email: faker.internet.email(),
-                password: faker.internet.password(),
-                created_at: faker.date.past(),
-                updated_at: faker.date.recent(),
-                profil: {
-                    connect: { id: faker.helpers.arrayElement(profils).id }
+                title: faker.commerce.productName(),
+                description: faker.commerce.productDescription(),
+                publication_date: faker.date.recent(),
+                user: {
+                    connect: {id: faker.helpers.arrayElement(users).id}
                 },
-                level: {
-                    connect: { id: faker.helpers.arrayElement(levels).id }
+                enterprise: {
+                    connect: {id: faker.helpers.arrayElement(enterprises).id}
                 }
             }
         })
-        users.push(newUser)
+        offers.push(newOffer)
         n--
     }
-    return users
+    return offers
 }
 
+// === Application ===
+async function seedApplication(n = 10, users: user[], offers: offer[], cvs: curriculum_vitae[], surveys: survey[]): Promise<application[]> {
+    const applications: application[] = []
+    while (n) {
+        const newApplication = await prisma.application.create({
+            data: {
+                send_date: faker.date.past(),
+                received_return: faker.helpers.maybe(() => faker.lorem.sentence(), {probability: 0.5}),
+                number_of_reminder: faker.number.int({min: 0, max: 5}),
+                user: {connect: {id: faker.helpers.arrayElement(users).id}},
+                offer: {connect: {id: faker.helpers.arrayElement(offers).id}},
+                curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
+                survey: {connect: {id: faker.helpers.arrayElement(surveys).id}}
+            }
+        })
+        applications.push(newApplication)
+        n--
+    }
+    return applications
+}
+
+// === Education & Experience ===
+async function seedEducation(n = 4, users: user[], cvs: curriculum_vitae[]): Promise<void> {
+    while (n) {
+        await prisma.curriculum_vitae_has_education.create({
+            data: {
+                curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
+                education: {
+                    create: {
+                        title: faker.lorem.words(3),
+                        begin_year: faker.date.past(),
+                        end_year: faker.date.recent(),
+                        place: faker.location.city(),
+                        topics: faker.lorem.words(5),
+                        created_at: faker.date.past(),
+                        updated_at: faker.date.recent(),
+                        user: {connect: {id: faker.helpers.arrayElement(users).id}}
+                    }
+                }
+            }
+        })
+        n--
+    }
+}
+
+async function seedExperience(n = 6, users: user[], cvs: curriculum_vitae[]): Promise<void> {
+    while (n) {
+        await prisma.curriculum_vitae_has_experience.create({
+            data: {
+                curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
+                experience: {
+                    create: {
+                        title: faker.commerce.productName(),
+                        begin_year: faker.date.past(),
+                        end_year: faker.date.recent(),
+                        place: faker.location.city(),
+                        topics: faker.company.catchPhrase(),
+                        created_at: faker.date.past(),
+                        updated_at: faker.date.recent(),
+                        user: {connect: {id: faker.helpers.arrayElement(users).id}}
+                    }
+                }
+            }
+        })
+        n--
+    }
+}
+
+// === User Has ===
+async function seedUserHasLanguage(n = 3, users: user[], languages: language[]) {
+    const links: user_has_language[] = []
+    while (n) {
+        const newLink = await prisma.user_has_language.create({
+            data: {
+                user: {connect: {id: faker.helpers.arrayElement(users).id}},
+                language: {connect: {id: faker.helpers.arrayElement(languages).id}}
+            }
+        })
+        links.push(newLink)
+        n--
+    }
+    return links
+}
+
+async function seedUserHasOffer(n = 20, users: user[], offers: offer[]) {
+    const links: user_has_offer[] = []
+    while (n) {
+        const newLink = await prisma.user_has_offer.create({
+            data: {
+                user: {connect: {id: faker.helpers.arrayElement(users).id}},
+                offer: {connect: {id: faker.helpers.arrayElement(offers).id}}
+            }
+        })
+        links.push(newLink)
+        n--
+    }
+    return links
+}
+
+
+// === CV Has ===
+async function seedCVHasSkills(n = 10, cvs: curriculum_vitae[], users: user[]): Promise<void> {
+    while (n) {
+        await prisma.curriculum_vitae_has_skill.create({
+            data: {
+                curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
+                skill: {
+                    create: {
+                        name: faker.hacker.noun(),
+                        user: {connect: {id: faker.helpers.arrayElement(users).id}}
+                    }
+                }
+            }
+        })
+        n--
+    }
+}
+
+async function seedCVHasProjects(n = 6, cvs: curriculum_vitae[], users: user[]): Promise<void> {
+    while (n) {
+        await prisma.curriculum_vitae_has_project.create({
+            data: {
+                curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
+                project: {
+                    create: {
+                        name: faker.commerce.productName(),
+                        year_of_beginning: faker.date.past(),
+                        end_year: faker.date.recent(),
+                        place: faker.location.city(),
+                        results: faker.company.catchPhrase(),
+                        created_at: faker.date.past(),
+                        updated_at: faker.date.recent(),
+                        user: {connect: {id: faker.helpers.arrayElement(users).id}}
+                    }
+                }
+            }
+        })
+        n--
+    }
+}
+
+async function seedCVHasHobbies(n = 8, cvs: curriculum_vitae[], users: user[]): Promise<void> {
+    while (n) {
+        await prisma.curriculum_vitae_has_hobby.create({
+            data: {
+                curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
+                hobby: {
+                    create: {
+                        name: faker.word.noun(),
+                        user: {connect: {id: faker.helpers.arrayElement(users).id}}
+                    }
+                }
+            }
+        })
+        n--
+    }
+}
+
+async function seedCVHasUsefulInfos(n = 6, cvs: curriculum_vitae[], users: user[]): Promise<void> {
+    while (n) {
+        await prisma.curriculum_vitae_has_useful_information.create({
+            data: {
+                curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
+                useful_information: {
+                    create: {
+                        name: faker.lorem.words(3),
+                        user: {connect: {id: faker.helpers.arrayElement(users).id}}
+                    }
+                }
+            }
+        })
+        n--
+    }
+}
+
+async function seedCVHasLanguages(n = 4, cvs: curriculum_vitae[], languages: language[]): Promise<void> {
+    while (n) {
+        await prisma.curriculum_vitae_has_language.create({
+            data: {
+                curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
+                language: {connect: {id: faker.helpers.arrayElement(languages).id}}
+            }
+        })
+        n--
+    }
+}
+
+
 async function handleSeed() {
-    await seedProfil()
-    await seedLanguages()
-    await seedLevel()
+    const profils = await seedProfil()
+    const levels = await seedLevel()
+    const users = await seedUser(10, profils, levels)
+    const cvs = await seedCurriculumVitae(10, users)
+    const enterprises = await seedEnterprise()
+    const offers = await seedOffer(10, users, enterprises)
+    const languages = await seedLanguage()
+    await seedUserHasLanguage(20, users, languages)
+    await seedUserHasOffer(20, users, offers)
+    await seedCVHasSkills(20, cvs, users)
+    await seedCVHasProjects(20, cvs, users)
+    await seedCVHasHobbies(20, cvs, users)
+    await seedCVHasUsefulInfos(20, cvs, users)
+    await seedCVHasLanguages(20, cvs, languages)
+    await seedEducation(20, users, cvs)
+    await seedExperience(20, users, cvs)
     await seedQuestion()
     await seedAnswer()
-    await seedEnterprise()
-    await seedSurvey()
+    const surveys = await seedSurvey()
+    await seedApplication(10, users, offers, cvs, surveys)
 }
+
 
 handleSeed()
     .then(() => {
-        console.log('✅ Seed terminé pour les tables sans clés étrangères')
+        console.log('✅ Seed terminé pour les tables sans clés étrangères + user + cv')
     })
     .catch((e) => {
         console.error(e)
@@ -175,3 +444,6 @@ handleSeed()
     .finally(async () => {
         await prisma.$disconnect()
     })
+
+
+

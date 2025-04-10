@@ -2,172 +2,43 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model answer {
-  id      Int     @id @default(autoincrement())
-  content String? @db.Text
-}
+model user {
+  id         Int         @id @default(autoincrement())
+  firstname  String      @db.VarChar(50)
+  lastname   String      @db.VarChar(100)
+  email      String      @unique(map: "mail_UNIQUE")
+  password   String      @db.VarChar(255)
+  created_at DateTime    @db.DateTime(0)
+  updated_at DateTime?   @db.DateTime(0)
+  status     user_status @default(inscription_non_valid_e)
+  profil_id  Int
+  level_id   Int
 
-model application {
-  id                 Int      @default(autoincrement())
-  send_date          DateTime @db.DateTime(0)
-  received_return    String?  @db.VarChar(255)
-  number_of_reminder Int
-  survey_id          Int
-  offer_id           Int
-  user_id            Int
-  resume_id          Int
+  profil             profil               @relation(fields: [profil_id], references: [id])
+  level              level                @relation(fields: [level_id], references: [id])
+  curriculum_vitae   curriculum_vitae[]
+  education          education[]
+  experience         experience[]
+  hobby              hobby[]
+  project            project[]
+  skill              skill[]
+  useful_information useful_information[]
+  application        application[]
+  user_has_language  user_has_language[]
+  user_has_offer     user_has_offer[]
+  offer              offer[]
 
-  @@id([id, survey_id, offer_id, user_id, resume_id])
-}
-
-model curriculum_vitae {
-  id           Int       @default(autoincrement())
-  photo        String    @db.VarChar(250)
-  name         String    @db.VarChar(255)
-  firstname    String    @db.VarChar(255)
-  mail         String
-  street       String    @db.VarChar(250)
-  zip_code     String    @db.VarChar(10)
-  city         String    @db.VarChar(255)
-  phone_number String    @unique(map: "phone_number_UNIQUE") @db.VarChar(20)
-  created_at   DateTime  @db.DateTime(0)
-  updated_at   DateTime? @db.DateTime(0)
-  user_id      Int
-
-  @@id([id, user_id])
-}
-
-model curriculum_vitae_has_education {
-  curriculum_vitae_id      Int
-  curriculum_vitae_user_id Int
-  education_id             Int
-  education_user_id        Int
-
-  @@id([curriculum_vitae_id, curriculum_vitae_user_id, education_id, education_user_id])
-}
-
-model curriculum_vitae_has_experience {
-  curriculum_vitae_id      Int
-  curriculum_vitae_user_id Int
-  experience_id            Int
-  experience_user_id       Int
-  experience_user_id1      Int
-
-  @@id([curriculum_vitae_id, curriculum_vitae_user_id, experience_id, experience_user_id, experience_user_id1])
-}
-
-model curriculum_vitae_has_hobby {
-  curriculum_vitae_id      Int
-  curriculum_vitae_user_id Int
-  hobby_id                 Int
-  hobby_user_id            Int
-
-  @@id([curriculum_vitae_id, curriculum_vitae_user_id, hobby_id, hobby_user_id])
-}
-
-model curriculum_vitae_has_language {
-  curriculum_vitae_id      Int
-  curriculum_vitae_user_id Int
-  language_id              Int
-
-  @@id([curriculum_vitae_id, curriculum_vitae_user_id, language_id])
-}
-
-model curriculum_vitae_has_project {
-  curriculum_vitae_id      Int
-  curriculum_vitae_user_id Int
-  project_id               Int
-  project_user_id          Int
-
-  @@id([curriculum_vitae_id, curriculum_vitae_user_id, project_id, project_user_id])
-}
-
-model curriculum_vitae_has_skill {
-  curriculum_vitae_id      Int
-  curriculum_vitae_user_id Int
-  skill_id                 Int
-  skill_user_id            Int
-
-  @@id([curriculum_vitae_id, curriculum_vitae_user_id, skill_id, skill_user_id])
-}
-
-model curriculum_vitae_has_useful_information {
-  curriculum_vitae_id        Int
-  curriculum_vitae_user_id   Int
-  useful_information_id      Int
-  useful_information_user_id Int
-
-  @@id([curriculum_vitae_id, curriculum_vitae_user_id, useful_information_id, useful_information_user_id])
-}
-
-model education {
-  id         Int       @default(autoincrement())
-  title      String    @db.VarChar(255)
-  begin_year DateTime  @db.Date
-  end_year   DateTime  @db.Date
-  place      String    @db.VarChar(255)
-  topics     String    @db.VarChar(250)
-  created_at DateTime  @db.DateTime(0)
-  updated_at DateTime? @db.DateTime(0)
-  user_id    Int
-
-  @@id([id, user_id])
-}
-
-model enterprise {
-  id          Int    @id @default(autoincrement())
-  name        String @db.VarChar(255)
-  employees   String @db.VarChar(50)
-  description String @db.Text
-}
-
-model experience {
-  id         Int       @default(autoincrement())
-  title      String    @db.VarChar(255)
-  begin_year DateTime  @db.Date
-  end_year   DateTime  @db.Date
-  place      String    @db.VarChar(255)
-  topics     String    @db.VarChar(255)
-  created_at DateTime  @db.DateTime(0)
-  updated_at DateTime? @db.DateTime(0)
-  user_id    Int
-
-  @@id([id, user_id])
-}
-
-model hobby {
-  id      Int     @default(autoincrement())
-  name    String? @db.VarChar(255)
-  user_id Int
-
-  @@id([id, user_id])
-}
-
-model language {
-  id                Int                        @id @unique(map: "id_UNIQUE") @default(autoincrement())
-  name              String                     @db.VarChar(50)
-  level_of_language language_level_of_language
-}
-
-model level {
-  id    Int         @id @default(autoincrement())
-  grade level_grade @default(pas_admin)
-}
-
-model offer {
-  id               Int      @default(autoincrement())
-  title            String   @db.VarChar(255)
-  description      String   @db.Text
-  publication_date DateTime @db.DateTime(0)
-  user_id          Int
-  enterprise_id    Int
-
-  @@id([id, user_id, enterprise_id])
+  @@index([profil_id])
+  @@index([level_id])
 }
 
 model profil {
@@ -179,10 +50,127 @@ model profil {
   phone_number String    @unique(map: "phone_number_UNIQUE") @db.VarChar(20)
   created_at   DateTime  @db.DateTime(0)
   updated_at   DateTime? @db.DateTime(0)
+
+  user user[]
+}
+
+model level {
+  id    Int         @id @default(autoincrement())
+  grade level_grade @unique
+
+  user user[]
+}
+
+model curriculum_vitae {
+  id           Int       @id @default(autoincrement())
+  photo        String    @db.VarChar(250)
+  lastname     String    @db.VarChar(255)
+  firstname    String    @db.VarChar(255)
+  mail         String
+  street       String    @db.VarChar(250)
+  zip_code     String    @db.VarChar(10)
+  city         String    @db.VarChar(255)
+  phone_number String    @unique(map: "phone_number_UNIQUE") @db.VarChar(20)
+  created_at   DateTime  @db.DateTime(0)
+  updated_at   DateTime? @db.DateTime(0)
+  user_id      Int
+
+  user                                    user                                      @relation(fields: [user_id], references: [id])
+  application                             application[]
+  curriculum_vitae_has_education          curriculum_vitae_has_education[]
+  curriculum_vitae_has_experience         curriculum_vitae_has_experience[]
+  curriculum_vitae_has_hobby              curriculum_vitae_has_hobby[]
+  curriculum_vitae_has_language           curriculum_vitae_has_language[]
+  curriculum_vitae_has_project            curriculum_vitae_has_project[]
+  curriculum_vitae_has_skill              curriculum_vitae_has_skill[]
+  curriculum_vitae_has_useful_information curriculum_vitae_has_useful_information[]
+
+  @@index([user_id])
+}
+
+model application {
+  id                 Int      @id @default(autoincrement())
+  send_date          DateTime @db.DateTime(0)
+  received_return    String?  @db.VarChar(255)
+  number_of_reminder Int
+  survey_id          Int
+  offer_id           Int
+  user_id            Int
+  resume_id          Int
+
+  survey           survey           @relation(fields: [survey_id], references: [id])
+  offer            offer            @relation(fields: [offer_id], references: [id])
+  user             user             @relation(fields: [user_id], references: [id])
+  curriculum_vitae curriculum_vitae @relation(fields: [resume_id], references: [id])
+
+  @@index([survey_id])
+  @@index([offer_id])
+  @@index([user_id])
+  @@index([resume_id])
+}
+
+model offer {
+  id               Int      @id @default(autoincrement())
+  title            String   @db.VarChar(255)
+  description      String   @db.Text
+  publication_date DateTime @db.DateTime(0)
+  user_id          Int
+  enterprise_id    Int
+
+  user           user             @relation(fields: [user_id], references: [id])
+  enterprise     enterprise       @relation(fields: [enterprise_id], references: [id])
+  application    application[]
+  user_has_offer user_has_offer[]
+
+  @@index([enterprise_id])
+  @@index([user_id])
+}
+
+model enterprise {
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(255)
+  employees   String @db.VarChar(50)
+  description String @db.Text
+
+  offer offer[]
+}
+
+model education {
+  id         Int       @id @default(autoincrement())
+  title      String    @db.VarChar(255)
+  begin_year DateTime  @db.Date
+  end_year   DateTime  @db.Date
+  place      String    @db.VarChar(255)
+  topics     String    @db.VarChar(250)
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  user_id    Int
+
+  user                           user                             @relation(fields: [user_id], references: [id])
+  curriculum_vitae_has_education curriculum_vitae_has_education[]
+
+  @@index([user_id])
+}
+
+model experience {
+  id         Int       @id @default(autoincrement())
+  title      String    @db.VarChar(255)
+  begin_year DateTime  @db.Date
+  end_year   DateTime  @db.Date
+  place      String    @db.VarChar(255)
+  topics     String    @db.VarChar(255)
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  user_id    Int
+
+  user                            user                              @relation(fields: [user_id], references: [id])
+  curriculum_vitae_has_experience curriculum_vitae_has_experience[]
+
+  @@index([user_id])
 }
 
 model project {
-  id                Int       @default(autoincrement())
+  id                Int       @id @default(autoincrement())
   name              String    @db.VarChar(255)
   year_of_beginning DateTime  @db.Date
   end_year          DateTime  @db.Date
@@ -192,27 +180,43 @@ model project {
   updated_at        DateTime? @db.DateTime(0)
   user_id           Int
 
-  @@id([id, user_id])
-}
+  user                         user                           @relation(fields: [user_id], references: [id])
+  curriculum_vitae_has_project curriculum_vitae_has_project[]
 
-model question {
-  id      Int     @id @default(autoincrement())
-  content String? @db.Text
-}
-
-model question_has_answer {
-  question_id Int
-  answer_id   Int
-
-  @@id([question_id, answer_id])
+  @@index([user_id])
 }
 
 model skill {
-  id      Int     @default(autoincrement())
+  id      Int     @id @default(autoincrement())
   name    String? @db.VarChar(255)
   user_id Int
 
-  @@id([id, user_id])
+  user                       user                         @relation(fields: [user_id], references: [id])
+  curriculum_vitae_has_skill curriculum_vitae_has_skill[]
+
+  @@index([user_id])
+}
+
+model hobby {
+  id      Int     @id @default(autoincrement())
+  name    String? @db.VarChar(255)
+  user_id Int
+
+  user                       user                         @relation(fields: [user_id], references: [id])
+  curriculum_vitae_has_hobby curriculum_vitae_has_hobby[]
+
+  @@index([user_id])
+}
+
+model useful_information {
+  id      Int     @id @default(autoincrement())
+  name    String? @db.VarChar(255)
+  user_id Int
+
+  user                                    user                                      @relation(fields: [user_id], references: [id])
+  curriculum_vitae_has_useful_information curriculum_vitae_has_useful_information[]
+
+  @@index([user_id])
 }
 
 model survey {
@@ -220,6 +224,180 @@ model survey {
   message  String  @db.Text
   question String  @db.VarChar(255)
   answer   String? @db.Text
+
+  application         application[]
+  survey_has_answer   survey_has_answer[]
+  survey_has_question survey_has_question[]
+}
+
+model answer {
+  id                  Int                   @id @default(autoincrement())
+  content             String?               @db.Text
+  question_has_answer question_has_answer[]
+  survey_has_answer   survey_has_answer[]
+}
+
+model question {
+  id                  Int                   @id @default(autoincrement())
+  content             String?               @db.Text
+  question_has_answer question_has_answer[]
+  survey_has_question survey_has_question[]
+}
+
+model language {
+  id    Int                        @id @default(autoincrement())
+  name  String                     @unique @db.VarChar(50)
+  level language_level_of_language
+
+  user_has_language             user_has_language[]
+  curriculum_vitae_has_language curriculum_vitae_has_language[]
+}
+
+// Pivot Tables
+
+model question_has_answer {
+  question_id Int
+  answer_id   Int
+
+  question question @relation(fields: [question_id], references: [id])
+  answer   answer   @relation(fields: [answer_id], references: [id])
+
+  @@id([question_id, answer_id])
+}
+
+model survey_has_question {
+  survey_id   Int
+  question_id Int
+
+  survey   survey   @relation(fields: [survey_id], references: [id])
+  question question @relation(fields: [question_id], references: [id])
+
+  @@id([survey_id, question_id])
+}
+
+model survey_has_answer {
+  survey_id Int
+  answer_id Int
+
+  survey survey @relation(fields: [survey_id], references: [id])
+  answer answer @relation(fields: [answer_id], references: [id])
+
+  @@id([survey_id, answer_id])
+}
+
+model curriculum_vitae_has_education {
+  id                  Int @id @default(autoincrement())
+  curriculum_vitae_id Int
+  education_id        Int
+
+  curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
+  education        education        @relation(fields: [education_id], references: [id])
+
+  @@index([curriculum_vitae_id])
+  @@index([education_id])
+}
+
+model curriculum_vitae_has_experience {
+  id                  Int @id @default(autoincrement())
+  curriculum_vitae_id Int
+  experience_id       Int
+
+  curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
+  experience       experience       @relation(fields: [experience_id], references: [id])
+
+  @@index([curriculum_vitae_id])
+  @@index([experience_id])
+}
+
+model curriculum_vitae_has_project {
+  id                  Int @id @default(autoincrement())
+  curriculum_vitae_id Int
+  project_id          Int
+
+  curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
+  project          project          @relation(fields: [project_id], references: [id])
+
+  @@index([curriculum_vitae_id])
+  @@index([project_id])
+}
+
+model curriculum_vitae_has_skill {
+  id                  Int @id @default(autoincrement())
+  curriculum_vitae_id Int
+  skill_id            Int
+
+  curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
+  skill            skill            @relation(fields: [skill_id], references: [id])
+
+  @@index([curriculum_vitae_id])
+  @@index([skill_id])
+}
+
+model curriculum_vitae_has_hobby {
+  id                  Int @id @default(autoincrement())
+  curriculum_vitae_id Int
+  hobby_id            Int
+
+  curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
+  hobby            hobby            @relation(fields: [hobby_id], references: [id])
+
+  @@index([curriculum_vitae_id])
+  @@index([hobby_id])
+}
+
+model curriculum_vitae_has_language {
+  id                  Int @id @default(autoincrement())
+  curriculum_vitae_id Int
+  language_id         Int
+
+  curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
+  language         language         @relation(fields: [language_id], references: [id])
+
+  @@index([curriculum_vitae_id])
+  @@index([language_id])
+}
+
+model curriculum_vitae_has_useful_information {
+  id                    Int @id @default(autoincrement())
+  curriculum_vitae_id   Int
+  useful_information_id Int
+
+  curriculum_vitae   curriculum_vitae   @relation(fields: [curriculum_vitae_id], references: [id])
+  useful_information useful_information @relation(fields: [useful_information_id], references: [id])
+
+  @@index([curriculum_vitae_id])
+  @@index([useful_information_id])
+}
+
+model user_has_language {
+  id          Int @id @default(autoincrement())
+  user_id     Int
+  language_id Int
+
+  user     user     @relation(fields: [user_id], references: [id])
+  language language @relation(fields: [language_id], references: [id])
+
+  @@index([user_id])
+  @@index([language_id])
+}
+
+model user_has_offer {
+  id       Int @id @default(autoincrement())
+  user_id  Int
+  offer_id Int
+
+  user  user  @relation(fields: [user_id], references: [id])
+  offer offer @relation(fields: [offer_id], references: [id])
+
+  @@index([user_id])
+  @@index([offer_id])
+}
+
+// Enum
+
+enum user_status {
+  inscription_valid_e     @map("inscription validée")
+  inscription_non_valid_e @map("inscription non-validée")
 }
 
 enum level_grade {

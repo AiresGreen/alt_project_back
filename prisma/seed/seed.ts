@@ -252,8 +252,8 @@ async function seedEducation(n = 4, users: user[], cvs: curriculum_vitae[]): Pro
                 education: {
                     create: {
                         title: faker.lorem.words(3),
-                        begin_year: faker.date.past(),
-                        end_year: faker.date.recent(),
+                        begin_year: faker.number.int(4),
+                        end_year: faker.number.int(4),
                         place: faker.location.city(),
                         topics: faker.lorem.words(5),
                         created_at: faker.date.past(),
@@ -275,8 +275,8 @@ async function seedExperience(n = 6, users: user[], cvs: curriculum_vitae[]): Pr
                 experience: {
                     create: {
                         title: faker.commerce.productName(),
-                        begin_year: faker.date.past(),
-                        end_year: faker.date.recent(),
+                        begin_year: faker.number.int(4),
+                        end_year: faker.number.int(4),
                         place: faker.location.city(),
                         topics: faker.company.catchPhrase(),
                         created_at: faker.date.past(),
@@ -408,6 +408,7 @@ async function seedCVHasLanguages(n = 4, cvs: curriculum_vitae[], languages: lan
         n--
     }
 }
+
 
 
 async function handleSeed() {

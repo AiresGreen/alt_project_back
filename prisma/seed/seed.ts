@@ -123,8 +123,10 @@ async function seedLanguage(n = 10) {
     while (n) {
         const name = faker.location.language().name;
         const level = faker.helpers.arrayElement(levels);
-        const newLanguage: { id: number, name: string, level: $Enums.language_level_of_language } = await prisma.language.create({
-            data: {
+        const newLanguage: { id: number, name: string, level: $Enums.language_level_of_language } = await prisma.language.upsert({
+            where: { name },
+            update: {},
+            create: {
                 name,
                 level
             }
@@ -437,7 +439,7 @@ async function handleSeed() {
 
 handleSeed()
     .then(() => {
-        console.log('✅ Seed terminé pour les tables sans clés étrangères + user + cv')
+        console.log('✅ Seed a été éffectué avec succès, Maître Jedi !')
     })
     .catch((e) => {
         console.error(e)

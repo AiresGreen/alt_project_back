@@ -439,7 +439,7 @@ async function handleSeed() {
 
 handleSeed()
     .then(() => {
-        console.log('✅ Seed a été éffectué avec succès, Maître Jedi !')
+        console.log('✅ Bravo bouffon, tu as réussi  !')
     })
     .catch((e) => {
         console.error(e)

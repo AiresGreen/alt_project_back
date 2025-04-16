@@ -1,5 +1,3 @@
-/*
-
 import {
   Body,
   Controller,
@@ -12,7 +10,7 @@ import {
 import { AuthGuard } from './auth.guard';
 import {AuthService, payload} from './auth.service';
 import { Request } from 'express';
-import { Public } from './public.decorateur';
+import { Public } from './public.decorator';
 
  type RequestWithUser = Request & {user:  payload;};
 
@@ -26,14 +24,14 @@ export class AuthController {
     return "Hihi, c'est pas protegé !";
   }
 
-
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: Record<string, any>) {
     return this.authService.signIn(signInDto.email, signInDto.password);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard) //pas utile parce que APP_GUARD
   @Get('profile')
   getProfile(@Req() req: RequestWithUser) {
     return req.user;
@@ -41,4 +39,4 @@ export class AuthController {
 
 
 }
-*/
+

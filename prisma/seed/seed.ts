@@ -13,6 +13,8 @@ import {
 
 } from '@prisma/client'
 import {fakerFR, fakerFR as faker} from '@faker-js/faker'
+import * as argon2 from 'argon2'
+
 
 const prisma = new PrismaClient()
 
@@ -68,7 +70,7 @@ async function seedUser(n = 10, profils: profil[], levels: level[]) {
                 firstname: faker.person.firstName(),
                 lastname: faker.person.lastName(),
                 email,
-                password: faker.internet.password(),
+                password:  await argon2.hash(faker.internet.password()),
                 created_at: faker.date.past(),
                 updated_at: faker.date.recent(),
                 profil: {

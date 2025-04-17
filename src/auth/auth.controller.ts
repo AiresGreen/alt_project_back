@@ -11,8 +11,14 @@ import { AuthGuard } from './auth.guard';
 import {AuthService, payload} from './auth.service';
 import { Request } from 'express';
 import { Public } from './public.decorator';
+import {SignInDto} from "./dto/sign-in.dto";
+import {SignUpDto} from "./dto/sign-up.dto";
+
+
 
  type RequestWithUser = Request & {user:  payload;};
+
+
 
 @Controller('auth')
 export class AuthController {
@@ -27,16 +33,28 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+ signIn(@Body() signInDto: SignInDto) {
+    return this.authService.signIn(signInDto);
+  }
+
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('signup')
+  async createUser(@Body() signUpDto: SignUpDto) {
+    return this.authService.createUser(signUpDto);
   }
 
   @UseGuards(AuthGuard) //pas utile parce que APP_GUARD
   @Get('profile')
-  getProfile(@Req() req: RequestWithUser) {
-    return req.user;
+    getProfile(@Req()
+    req: RequestWithUser
+  )
+    {
+      return req.user;
+    }
   }
 
 
-}
+
 

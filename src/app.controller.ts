@@ -1,9 +1,12 @@
 import {
-  Controller,
+  Controller, Post, Req, UseGuards,
 } from '@nestjs/common'
 import {PrismaService} from "../prisma/prisma.service";
+import {AuthGuard} from "@nestjs/passport";
+import {Request} from "express";
+import {payload} from "./auth/auth.service";
 
-
+type RequestWithUser = Request & {user:  payload;};
 
 @Controller()
 export class AppController {

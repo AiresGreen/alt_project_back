@@ -13,6 +13,7 @@ model user {
   lastname   String      @db.VarChar(100)
   email      String      @unique(map: "mail_UNIQUE")
   password   String      @db.VarChar(255)
+  hashedRt   String? //hashed refresh token
   created_at DateTime    @default(now())
   updated_at DateTime?   @updatedAt
   status     user_status @default(inscription_non_valid_e)

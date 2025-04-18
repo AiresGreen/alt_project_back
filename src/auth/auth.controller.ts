@@ -1,11 +1,11 @@
 import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post, Req,
-  UseGuards
+    Body,
+    Controller, ForbiddenException,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Post, Req,
+    UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import {AuthService, payload} from './auth.service';
@@ -13,6 +13,9 @@ import { Request } from 'express';
 import { Public } from './public.decorator';
 import {SignInDto} from "./dto/sign-in.dto";
 import {SignUpDto} from "./dto/sign-up.dto";
+import {PrismaService} from "../../prisma/prisma.service";
+import * as argon2 from "argon2";
+import {LocalAuthGuard} from "./local-auth.guard";
 
 
 
@@ -22,7 +25,9 @@ import {SignUpDto} from "./dto/sign-up.dto";
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+      private authService: AuthService,
+      private prisma: PrismaService) {}
 
   @Public()
   @Get()
@@ -47,12 +52,27 @@ export class AuthController {
 
   @UseGuards(AuthGuard) //pas utile parce que APP_GUARD
   @Get('profile')
-    getProfile(@Req()
-    req: RequestWithUser
-  )
+    getProfile(@Req() req: RequestWithUser)
     {
       return req.user;
     }
+
+    @UseGuards(LocalAuthGuard)
+    @Post('auth/login')
+    async login(@Req() req: RequestWithUser) {
+        return req.user;
+    }
+
+
+/*    @UseGuards(LocalAuthGuard)
+    @Post('auth/logout')
+    async logout(@Req() req: RequestWithUser) {
+        return req.logout();
+        }*/
+
+
+
+
   }
 
 

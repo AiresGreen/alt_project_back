@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { Request } from 'express';
 import {Reflector} from "@nestjs/core";
-import {IS_PUBLIC_KEY} from "./public.decorator";
+import {IS_PUBLIC_KEY} from "./decorator/public.decorator";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -25,20 +25,20 @@ export class AuthGuard implements CanActivate {
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
         if (!token) {
-            throw new UnauthorizedException("no_token");
+            throw new UnauthorizedException("Information is not good. You shall no pass.");
         }
         try {
             const payload = await this.jwtService.verifyAsync(
                 token,
                 {
-                    secret: process.env.SECRET_KEY
+                    secret: process.env.JWT_ACCESS_SECRET
                 }
             );
             // 💡 We're assigning the payload to the request object here
             // so that we can access it in our route handlers
             request['user'] = payload;
         } catch (error) {
-            throw new UnauthorizedException(error);
+            throw new UnauthorizedException("You shall no pass, that's all.");
         }
         return true;
     }

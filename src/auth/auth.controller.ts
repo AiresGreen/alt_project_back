@@ -4,76 +4,76 @@ import {
     Get,
     HttpCode,
     HttpStatus,
-    Post, Req,
+    Post, Req, UnauthorizedException,
     UseGuards
 } from '@nestjs/common';
-import { AuthGuard } from './auth.guard';
 import {AuthService, payload} from './auth.service';
-import { Request } from 'express';
-import { Public } from './public.decorator';
+import {Request} from 'express';
+import {Public} from './decorator/public.decorator';
 import {SignInDto} from "./dto/sign-in.dto";
 import {SignUpDto} from "./dto/sign-up.dto";
-import {PrismaService} from "../../prisma/prisma.service";
-import * as argon2 from "argon2";
 import {LocalAuthGuard} from "./local-auth.guard";
+import {JwtAuthGuard} from "./jwt-auth.guard";
+import {RtGuard} from "./rt.guard";
+import {GetCurrentUser} from "./decorator/get-current-user.decorator";
+import {AuthGuard} from "./auth.guard";
 
 
-
- type RequestWithUser = Request & {user:  payload;};
-
+type RequestWithUser = Request & { user: payload; };
 
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-      private authService: AuthService,
-      private prisma: PrismaService) {}
-
-  @Public()
-  @Get()
-  publicAnswer() {
-    return "Hihi, c'est pas protegé !";
-  }
-
-  @Public()
-  @HttpCode(HttpStatus.OK)
-  @Post('login')
- signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto);
-  }
-
-
-  @Public()
-  @HttpCode(HttpStatus.OK)
-  @Post('signup')
-  async createUser(@Body() signUpDto: SignUpDto) {
-    return this.authService.createUser(signUpDto);
-  }
-
-  @UseGuards(AuthGuard) //pas utile parce que APP_GUARD
-  @Get('profile')
-    getProfile(@Req() req: RequestWithUser)
-    {
-      return req.user;
+    constructor(
+        private authService: AuthService,
+    ) {
     }
 
-    @UseGuards(LocalAuthGuard)
+    @Public()
+    @Get()
+    publicAnswer() {
+        return "Hihi, c'est pas protegé !";
+    }
+
+    @Public()
+    @HttpCode(HttpStatus.OK)
+    @Post('login')
+    signIn(@Body() signInDto: SignInDto) {
+        return this.authService.signIn(signInDto);
+    }
+
+
+    @Public()
+    @HttpCode(HttpStatus.OK)
+    @Post('signup')
+    async createUser(@Body() signUpDto: SignUpDto) {
+        return this.authService.createUser(signUpDto);
+    }
+
+    @UseGuards(RtGuard)
+    @Post('refresh')
+    refreshTokens(
+        @GetCurrentUser('email') email: string,
+        @GetCurrentUser('refreshToken') refreshToken: string,
+    ) {
+        return this.authService.refreshTokens(email, refreshToken);
+    }
+
+    @UseGuards(RtGuard)
     @Post('auth/login')
     async login(@Req() req: RequestWithUser) {
-        return req.user;
+        return this.authService.login(req.user);
     }
 
 
-/*    @UseGuards(LocalAuthGuard)
-    @Post('auth/logout')
-    async logout(@Req() req: RequestWithUser) {
-        return req.logout();
-        }*/
+    /*    @UseGuards(LocalAuthGuard)
+        @Post('auth/logout')
+        async logout(@Req() req: RequestWithUser) {
+            return req.logout();
+            }*/
 
 
-
-
-  }
+}
 
 
 

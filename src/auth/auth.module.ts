@@ -10,6 +10,11 @@ import { AuthGuard } from './auth.guard';
 import {PassportModule} from "@nestjs/passport";
 import {LocalStrategy} from "./local.strategy";
 
+import {ConfigService} from "@nestjs/config";
+import {JwtAuthGuard} from "./jwt-auth.guard";
+import {RtStrategy} from "./rt.strategy";
+import {JwtStrategy} from "./jwt.strategy";
+
 
 @Module({
   imports: [
@@ -17,14 +22,14 @@ import {LocalStrategy} from "./local.strategy";
       PassportModule,
     JwtModule.register({
       global: true,
-      secret: process.env.SECRET_KEY,
+      secret: process.env.JWT_ACCESS_SECRET,
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  providers: [AuthService, LocalStrategy,
+  providers: [AuthService, LocalStrategy, ConfigService, JwtStrategy, RtStrategy,
    {
     provide: APP_GUARD,
-    useClass: AuthGuard,
+    useClass: JwtAuthGuard,
     }
   ],
   controllers: [AuthController],

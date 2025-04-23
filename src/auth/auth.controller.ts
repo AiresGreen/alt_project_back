@@ -1,22 +1,20 @@
 import {
     Body,
-    Controller, ForbiddenException,
+    Controller,
     Get,
-    HttpCode,
-    HttpStatus,
-    Post, Req, UnauthorizedException,
+    Post, Req,
     UseGuards
 } from '@nestjs/common';
 import {AuthService, payload} from './auth.service';
 import {Request} from 'express';
 import {Public} from './decorator/public.decorator';
 import {SignInDto} from "./dto/sign-in.dto";
-import {SignUpDto} from "./dto/sign-up.dto";
-import {LocalAuthGuard} from "./local-auth.guard";
-import {JwtAuthGuard} from "./jwt-auth.guard";
-import {RtGuard} from "./rt.guard";
 import {GetCurrentUser} from "./decorator/get-current-user.decorator";
-import {AuthGuard} from "./auth.guard";
+import {SignUpDto} from "./dto/sign-up.dto";
+import {UsersService} from "../users/users.service";
+import {AuthGuard} from "./guards/auth.guard";
+import {RtAuthGuard} from "./guards/rt-auth.guard";
+
 
 
 type RequestWithUser = Request & { user: payload; };
@@ -26,6 +24,7 @@ type RequestWithUser = Request & { user: payload; };
 export class AuthController {
     constructor(
         private authService: AuthService,
+        private usersService: UsersService,
     ) {
     }
 
@@ -36,34 +35,45 @@ export class AuthController {
     }
 
     @Public()
-    @HttpCode(HttpStatus.OK)
-    @Post('login')
-    signIn(@Body() signInDto: SignInDto) {
-        return this.authService.signIn(signInDto);
+    @Post('signin')
+    async login(@Body() dto: SignInDto) {
+        const user = await this.authService.validateUser(dto.email, dto.password);
+        return this.authService.login(user);
     }
 
 
     @Public()
-    @HttpCode(HttpStatus.OK)
     @Post('signup')
-    async createUser(@Body() signUpDto: SignUpDto) {
-        return this.authService.createUser(signUpDto);
+    async signUp(@Body() signUpDto: SignUpDto) {
+        const user = await this.authService.createUser(signUpDto);
+        return this.authService.login(user);
     }
 
-    @UseGuards(RtGuard)
+    @UseGuards(AuthGuard)
+    @Get('profile')
+    getProfile(@GetCurrentUser('email') email: string) {
+        return {
+            message: 'Voici ton profil',
+            email,
+        };
+    }
+
+    @UseGuards(RtAuthGuard)
+    @Get('refresh')
+    refresh(@Req() req: any) {
+        const user = req.user;
+        return this.authService.refreshToken(user.email, user.refreshToken);
+    }
+
+    @UseGuards(RtAuthGuard)
     @Post('refresh')
-    refreshTokens(
+    refreshToken(
         @GetCurrentUser('email') email: string,
         @GetCurrentUser('refreshToken') refreshToken: string,
     ) {
-        return this.authService.refreshTokens(email, refreshToken);
+        return this.authService.refreshToken(email, refreshToken);
     }
 
-    @UseGuards(RtGuard)
-    @Post('auth/login')
-    async login(@Req() req: RequestWithUser) {
-        return this.authService.login(req.user);
-    }
 
 
     /*    @UseGuards(LocalAuthGuard)

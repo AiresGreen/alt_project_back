@@ -13,6 +13,7 @@ export type payload = {
     email: string;
     firstname: string;
     lastname: string;
+    hashedRt: string;
 
 }
 
@@ -50,62 +51,81 @@ export class AuthService {
     }
 
 
-    async signIn(body: SignInDto): Promise<{ access_token: string }> {
+    async signIn(body: SignInDto)/*: Promise<{ access_token: string, refresh_token:string }>*/ {
         const user = await this.usersService.getByEmail(body.email);
         if (!user || !(await argon2.verify(user.password, body.password))) {
             throw new UnauthorizedException("AS-signIn");
         }
-        const payload: payload = {id: user.id, email: user.email, firstname: user.firstname, lastname: user.lastname,};
-        return {
-            access_token: await this.jwtService.signAsync(payload),
+        /*        const payload: payload = {id: user.id, email: user.email, firstname: user.firstname, lastname: user.lastname,};
+                return {
+                    access_token: await this.jwtService.signAsync(payload),
+                    refresh_token: await this.jwtService.signAsync(payload),*/
+        return user;
+    }
+
+    async validateUser(email: string, password: string) {
+        const user = await this.prisma.user.findUnique({ where: { email } });
+        if (!user || !(await argon2.verify(user.password, password))) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+        return user;
+    }
+
+    async login(user: any) {
+        const tokens = await this.generateTokens(user);
+        return tokens;
+    }
+
+    async generateTokens(user: any) {
+        const payload = {
+            id: user.id,
+            email: user.email,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            hashedRt: user.hashedRt,
         };
-    }
 
-
-//génération de tokens : access et refresh
-    async getTokens(email: string) {
-        const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync(
-                {sub: email},
-                {secret: this.config.get('JWT_ACCESS_SECRET'), expiresIn: '15m'},
-            ),
-            this.jwtService.signAsync(
-                {sub: email},
-                {secret: this.config.get('JWT_REFRESH_SECRET'), expiresIn: '7d'},
-            ),
-        ]);
-
-        return {accessToken, refreshToken};
-    }
-
-    //hacher et stoker refresh token
-    async updateRtHash(email: string, rt: string) {
-        const hash = await argon2.hash(rt);
-        await this.prisma.user.update({
-            where: {email},
-            data: {hashedRt: hash},
+        const accessToken = this.jwtService.sign(payload, {
+            secret: this.config.get('JWT_ACCESS_SECRET'),
+            expiresIn: '15m',
         });
+        console.log("🚀 ~ generateTokens ~ accessToken: ", accessToken);
+
+        const refreshToken = this.jwtService.sign(payload, {
+            secret: this.config.get('JWT_REFRESH_SECRET'),
+            expiresIn: '7d',
+        });
+        console.log("🚀 ~ generateTokens ~ refreshToken: ", refreshToken);
+
+        const hashedRt: string = await argon2.hash(refreshToken)
+        console.log("🚀 ~ generateTokens ~ hashedRt: ", hashedRt)
+
+        await this.prisma.user.update({
+            where: {email: user.email},
+            data: {hashedRt}
+            });
+
+
+
+        return {
+            accessToken,
+            refreshToken,
+            hashedRt,
+        };
+
     }
 
-    async refreshTokens(email: string, rt: string) {
-        const user = await this.prisma.user.findUnique({where: {email}});
+    async refreshToken(email: string, refreshToken: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { email},
+        });
 
-        if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
 
-        const rtMatches = await argon2.verify(user.hashedRt, rt);
-        if (!rtMatches) throw new ForbiddenException('Access Denied');
+        if (!user) throw new ForbiddenException('Access Denied');
 
-        const tokens = await this.getTokens(user.email);
-        await this.updateRtHash(user.email, tokens.refreshToken);
-
-        return tokens;
+        return this.generateTokens(user);
     }
 
-    async login(user: {email: string}) {
-        const tokens = await this.getTokens( user.email);
-        await this.updateRtHash(user.email, tokens.refreshToken);
-        return tokens;
-    }
 
 
 }

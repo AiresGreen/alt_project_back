@@ -1,9 +1,15 @@
 
-import {Injectable, InternalServerErrorException, UnauthorizedException} from '@nestjs/common';
-import * as argon2 from 'argon2';
+import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {PrismaService} from "../../prisma/prisma.service";
 import {user} from "@prisma/client";
 
+export type payload = {
+    id: number;
+    email: string;
+    firstname: string;
+    lastname: string;
+
+}
 
 @Injectable()
 export class UsersService {
@@ -18,6 +24,7 @@ export class UsersService {
             },
         });
     }
+
 
 
     async getByEmail(email: string): Promise<user | null> {

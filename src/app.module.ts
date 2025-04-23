@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config'
 
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, ConfigModule.forRoot({ isGlobal: true }),],
+  imports: [PrismaModule, UsersModule, AuthModule],
 
 })
 export class AppModule {}

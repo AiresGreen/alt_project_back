@@ -422,7 +422,7 @@ async function handleSeed() {
     const cvs = await seedCurriculumVitae(10, users)
     const enterprises = await seedEnterprise()
     const offers = await seedOffer(10, users, enterprises)
-    const languages = await seedLanguage()
+    const languages = await seedLanguage(5)
     await seedUserHasLanguage(20, users, languages)
     await seedUserHasOffer(20, users, offers)
     await seedCVHasSkills(20, cvs, users)

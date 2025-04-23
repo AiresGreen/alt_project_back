@@ -56,10 +56,6 @@ export class AuthService {
         if (!user || !(await argon2.verify(user.password, body.password))) {
             throw new UnauthorizedException("AS-signIn");
         }
-        /*        const payload: payload = {id: user.id, email: user.email, firstname: user.firstname, lastname: user.lastname,};
-                return {
-                    access_token: await this.jwtService.signAsync(payload),
-                    refresh_token: await this.jwtService.signAsync(payload),*/
         return user;
     }
 
@@ -72,8 +68,7 @@ export class AuthService {
     }
 
     async login(user: any) {
-        const tokens = await this.generateTokens(user);
-        return tokens;
+        return await this.generateTokens(user);
     }
 
     async generateTokens(user: any) {
@@ -82,29 +77,31 @@ export class AuthService {
             email: user.email,
             firstname: user.firstname,
             lastname: user.lastname,
-            hashedRt: user.hashedRt,
+            hashedRt: user.hashedRt
         };
 
         const accessToken = this.jwtService.sign(payload, {
             secret: this.config.get('JWT_ACCESS_SECRET'),
-            expiresIn: '15m',
+            expiresIn: '3h',
         });
         console.log("🚀 ~ generateTokens ~ accessToken: ", accessToken);
 
         const refreshToken = this.jwtService.sign(payload, {
             secret: this.config.get('JWT_REFRESH_SECRET'),
-            expiresIn: '7d',
+            expiresIn: '1d',
         });
         console.log("🚀 ~ generateTokens ~ refreshToken: ", refreshToken);
 
         const hashedRt: string = await argon2.hash(refreshToken)
         console.log("🚀 ~ generateTokens ~ hashedRt: ", hashedRt)
 
-        await this.prisma.user.update({
+        await this.prisma.user.upsert({
             where: {email: user.email},
-            data: {hashedRt}
+            update: {hashedRt},
+            create: {
+                ...user
+            },
             });
-
 
 
         return {
@@ -119,7 +116,6 @@ export class AuthService {
         const user = await this.prisma.user.findUnique({
             where: { email},
         });
-
 
         if (!user) throw new ForbiddenException('Access Denied');
 

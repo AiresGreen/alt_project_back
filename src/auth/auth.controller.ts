@@ -34,6 +34,9 @@ export class AuthController {
         return "Hihi, c'est pas protegé !";
     }
 
+
+
+
     @Public()
     @Post('signin')
     async login(@Body() dto: SignInDto) {
@@ -52,10 +55,13 @@ export class AuthController {
     @UseGuards(AuthGuard)
     @Get('profile')
     getProfile(@GetCurrentUser('email') email: string) {
-        return {
-            message: 'Voici ton profil',
-            email,
-        };
+        return this.usersService.getByEmail(email)
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('users')
+    findAll() {
+        return this.usersService.findAll();
     }
 
     @UseGuards(RtAuthGuard)

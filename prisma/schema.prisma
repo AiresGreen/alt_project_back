@@ -242,9 +242,8 @@ model question {
 }
 
 model language {
-  id    Int                        @id @default(autoincrement())
-  name  String                     @unique @db.VarChar(50)
-  level language_level_of_language
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(50)
 
   user_has_language             user_has_language[]
   curriculum_vitae_has_language curriculum_vitae_has_language[]
@@ -367,15 +366,19 @@ model curriculum_vitae_has_useful_information {
 }
 
 model user_has_language {
-  id          Int @id @default(autoincrement())
   user_id     Int
   language_id Int
+  level       language_level_of_language
 
-  user     user     @relation(fields: [user_id], references: [id])
-  language language @relation(fields: [language_id], references: [id])
+  user       user     @relation(fields: [user_id], references: [id])
+  language   language @relation(fields: [language_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  @@index([user_id])
-  @@index([language_id])
+  // @@index([user_id])
+  // @@index([language_id])
+
+  @@id([user_id, language_id])
 }
 
 model user_has_offer {

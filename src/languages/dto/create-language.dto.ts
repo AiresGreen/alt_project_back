@@ -11,6 +11,7 @@ export class CreateLanguageDto {
     name: string;
 
     @IsEnum(language_level_of_language)
+    @IsNotEmpty()
     level: language_level_of_language;
 
 }

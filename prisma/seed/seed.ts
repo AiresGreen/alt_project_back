@@ -18,6 +18,41 @@ import * as argon2 from 'argon2'
 
 const prisma = new PrismaClient()
 
+async function handleSeed() {
+    const profils = await seedProfil()
+    const levels = await seedLevel()
+    const users = await seedUser(10, profils, levels)
+    const cvs = await seedCurriculumVitae(10, users)
+    const enterprises = await seedEnterprise()
+    const offers = await seedOffer(10, users, enterprises)
+    // const languages = await seedLanguage(5)
+    // await seedUserHasLanguage(20, users, languages)
+    await seedUserHasOffer(20, users, offers)
+    await seedCVHasSkills(20, cvs, users)
+    await seedCVHasProjects(20, cvs, users)
+    await seedCVHasHobbies(20, cvs, users)
+    await seedCVHasUsefulInfos(20, cvs, users)
+    // await seedCVHasLanguages(20, cvs, languages)
+    await seedEducation(20, users, cvs)
+    await seedExperience(20, users, cvs)
+    await seedQuestion()
+    await seedAnswer()
+    const surveys = await seedSurvey()
+    await seedApplication(10, users, offers, cvs, surveys)
+}
+
+
+handleSeed()
+    .then(() => {
+        console.log('✅ Seed a été éffectué avec succès, Maître Jedi !')
+    })
+    .catch((e) => {
+        console.error(e)
+    })
+    .finally(async () => {
+        await prisma.$disconnect()
+    })
+
 // === Profil ===
 async function seedProfil(n = 10): Promise<profil[]> {
     const profils: profil[] = []
@@ -118,26 +153,26 @@ async function seedCurriculumVitae(n = 10, users: user[]) {
 }
 
 // === Language ===
-async function seedLanguage(n = 10) {
-    const languages: language[] = [];
-    const levels = Object.values(language_level_of_language);
+// async function seedLanguage(n = 10) {
+//     const languages: language[] = [];
+//     const levels = Object.values(language_level_of_language);
 
-    while (n) {
-        const name = faker.location.language().name;
-        const level = faker.helpers.arrayElement(levels);
-        const newLanguage: { id: number, name: string, level: $Enums.language_level_of_language } = await prisma.language.upsert({
-            where: { name },
-            update: {},
-            create: {
-                name,
-                level
-            }
-        });
-        languages.push(newLanguage);
-        n--;
-    }
-    return languages;
-}
+//     while (n) {
+//         const name = faker.location.language().name;
+//         const level = faker.helpers.arrayElement(levels);
+//         const newLanguage: { id: number, name: string, level: $Enums.language_level_of_language } = await prisma.language.upsert({
+//             where: { name },
+//             update: {},
+//             create: {
+//                 name,
+//                 level
+//             }
+//         });
+//         languages.push(newLanguage);
+//         n--;
+//     }
+//     return languages;
+// }
 
 // === Question ===
 async function seedQuestion(n = 20) {
@@ -294,21 +329,21 @@ async function seedExperience(n = 6, users: user[], cvs: curriculum_vitae[]): Pr
     }
 }
 
-// === User Has ===
-async function seedUserHasLanguage(n = 3, users: user[], languages: language[]) {
-    const links: user_has_language[] = []
-    while (n) {
-        const newLink = await prisma.user_has_language.create({
-            data: {
-                user: {connect: {id: faker.helpers.arrayElement(users).id}},
-                language: {connect: {id: faker.helpers.arrayElement(languages).id}}
-            }
-        })
-        links.push(newLink)
-        n--
-    }
-    return links
-}
+// // === User Has ===
+// async function seedUserHasLanguage(n = 3, users: user[], languages: language[]) {
+//     const links: user_has_language[] = []
+//     while (n) {
+//         const newLink = await prisma.user_has_language.create({
+//             data: {
+//                 user: {connect: {id: faker.helpers.arrayElement(users).id}},
+//                 language: {connect: {id: faker.helpers.arrayElement(languages).id}}
+//             }
+//         })
+//         links.push(newLink)
+//         n--
+//     }
+//     return links
+// }
 
 async function seedUserHasOffer(n = 20, users: user[], offers: offer[]) {
     const links: user_has_offer[] = []
@@ -415,40 +450,7 @@ async function seedCVHasLanguages(n = 4, cvs: curriculum_vitae[], languages: lan
 
 
 
-async function handleSeed() {
-    const profils = await seedProfil()
-    const levels = await seedLevel()
-    const users = await seedUser(10, profils, levels)
-    const cvs = await seedCurriculumVitae(10, users)
-    const enterprises = await seedEnterprise()
-    const offers = await seedOffer(10, users, enterprises)
-    const languages = await seedLanguage(5)
-    await seedUserHasLanguage(20, users, languages)
-    await seedUserHasOffer(20, users, offers)
-    await seedCVHasSkills(20, cvs, users)
-    await seedCVHasProjects(20, cvs, users)
-    await seedCVHasHobbies(20, cvs, users)
-    await seedCVHasUsefulInfos(20, cvs, users)
-    await seedCVHasLanguages(20, cvs, languages)
-    await seedEducation(20, users, cvs)
-    await seedExperience(20, users, cvs)
-    await seedQuestion()
-    await seedAnswer()
-    const surveys = await seedSurvey()
-    await seedApplication(10, users, offers, cvs, surveys)
-}
 
-
-handleSeed()
-    .then(() => {
-        console.log('✅ Seed a été éffectué avec succès, Maître Jedi !')
-    })
-    .catch((e) => {
-        console.error(e)
-    })
-    .finally(async () => {
-        await prisma.$disconnect()
-    })
 
 
 

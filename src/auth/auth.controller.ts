@@ -17,7 +17,7 @@ import {RtAuthGuard} from "./guards/rt-auth.guard";
 
 
 
-type RequestWithUser = Request & { user: payload; };
+export type RequestWithUser = Request & { user: payload; };
 
 
 @Controller('auth')

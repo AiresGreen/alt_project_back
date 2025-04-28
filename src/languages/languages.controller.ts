@@ -5,12 +5,19 @@ import { UpdateLanguageDto } from './dto/update-language.dto';
 import {PrismaService} from "../../prisma/prisma.service";
 import {Public} from "../auth/decorator/public.decorator";
 import { RequestWithUser } from 'src/auth/auth.controller';
+import {firstValueFrom, Observable} from "rxjs";
+import {AxiosResponse} from "axios";
+import {language, user_has_language} from "@prisma/client";
+import {HttpService} from "@nestjs/axios";
+import {ConfigService} from "@nestjs/config";
 
 
 @Controller('languages')
 export class LanguagesController {
   constructor(private readonly languagesService: LanguagesService,
-              private prisma: PrismaService,) {
+              private prisma: PrismaService,
+              private readonly httpService: HttpService,
+              private configService: ConfigService,) {
   }
 
 
@@ -19,16 +26,12 @@ export class LanguagesController {
     return this.languagesService.findAll();
   }
 
-
   @Post()
-  async create(@Body() body: CreateLanguageDto,@Req()req:RequestWithUser) {
-    console.log(req.user)
-    return this.languagesService.create(body,req.user.id)
+  async upsert(@Body() dto: CreateLanguageDto,
+               @Req() req:any) {
+    const user_id = req.user.id;
+  return this.languagesService.upsert(dto,user_id)
   }
 
-  @Public()
-  @Patch(':id')
-  async update(@Param('id') id: number, @Body() body: UpdateLanguageDto) {
-    return this.languagesService.update(+id, body)
-  }
+
 }

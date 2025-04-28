@@ -5,10 +5,9 @@ import {language_level_of_language, level} from "@prisma/client";
 
 export class CreateLanguageDto {
 
-
     @IsString()
     @IsNotEmpty()
-    name: string;
+    langEnglishName: string;
 
     @IsEnum(language_level_of_language)
     @IsNotEmpty()

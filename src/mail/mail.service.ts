@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
+import { join } from 'path';
 
 @Injectable()
 export class MailService {
@@ -12,7 +13,7 @@ export class MailService {
             to,
             from: '"no-reply-BalanceTonJob.io" <noreply@balance-ton-job.fr>',
             subject: 'Confirme ton email',
-            template: __dirname + '/confirm',
+            template: join(__dirname + '/templates/confirm'),
             context: {
                 url: `http://localhost:3000/auth/verify-email?token=${token}`,
                 email: to,

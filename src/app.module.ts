@@ -26,7 +26,7 @@ import {join} from 'path';
                     from: '"no-reply-BalanceTonJob.io" <noreply@balance-ton-job.fr>',
                 },
                 template: {
-                  dir: __dirname + '/confirm',
+                  dir: join(__dirname + '/templates/confirm'),
                     adapter: new HandlebarsAdapter(),
                     options: {
                         strict: true,

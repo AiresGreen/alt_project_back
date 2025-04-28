@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "reset": "pnpm prisma db push --force-reset && pnpm tsx prisma/seed/seed.ts",
+    "reset": "pnpm prisma db push --force-reset && pnpm tsx prisma/seed/seed.ts && nest start --watch",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",

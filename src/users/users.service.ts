@@ -1,9 +1,15 @@
 
-import {Injectable, InternalServerErrorException} from '@nestjs/common';
-import * as argon2 from 'argon2';
+import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {PrismaService} from "../../prisma/prisma.service";
 import {user} from "@prisma/client";
 
+export type payload = {
+    id: number;
+    email: string;
+    firstname: string;
+    lastname: string;
+
+}
 
 @Injectable()
 export class UsersService {
@@ -20,12 +26,18 @@ export class UsersService {
     }
 
 
+
     async getByEmail(email: string): Promise<user | null> {
-        return this.prisma.user.findUnique({
-            where: {
-                email
-            }
-        })
+        try {
+            return this.prisma.user.findUnique({
+                where: {
+                    email
+                },
+            });
+        } catch (error) {
+        console.log(error);
+        throw new UnauthorizedException('You shall no pass');
+        }
     }
 }
 

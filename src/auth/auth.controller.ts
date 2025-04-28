@@ -1,59 +1,118 @@
 import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post, Req,
-  UseGuards
+    BadRequestException,
+    Body,
+    Controller,
+    Get,
+    Post, Query, Req,
+    UseGuards
 } from '@nestjs/common';
-import { AuthGuard } from './auth.guard';
 import {AuthService, payload} from './auth.service';
-import { Request } from 'express';
-import { Public } from './public.decorator';
+import {Request} from 'express';
+import {Public} from './decorator/public.decorator';
 import {SignInDto} from "./dto/sign-in.dto";
+import {GetCurrentUser} from "./decorator/get-current-user.decorator";
 import {SignUpDto} from "./dto/sign-up.dto";
+import {UsersService} from "../users/users.service";
+import {AuthGuard} from "./guards/auth.guard";
+import {RtAuthGuard} from "./guards/rt-auth.guard";
+import {PrismaService} from "../../prisma/prisma.service";
 
 
-
- type RequestWithUser = Request & {user:  payload;};
-
+export type RequestWithUser = Request & { user: payload; };
 
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
-
-  @Public()
-  @Get()
-  publicAnswer() {
-    return "Hihi, c'est pas protegé !";
-  }
-
-  @Public()
-  @HttpCode(HttpStatus.OK)
-  @Post('login')
- signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto);
-  }
-
-
-  @Public()
-  @HttpCode(HttpStatus.OK)
-  @Post('signup')
-  async createUser(@Body() signUpDto: SignUpDto) {
-    return this.authService.createUser(signUpDto);
-  }
-
-  @UseGuards(AuthGuard) //pas utile parce que APP_GUARD
-  @Get('profile')
-    getProfile(@Req()
-    req: RequestWithUser
-  )
-    {
-      return req.user;
+    constructor(
+        private authService: AuthService,
+        private usersService: UsersService,
+        private prisma: PrismaService,
+    ) {
     }
-  }
+
+    @Public()
+    @Get()
+    publicAnswer() {
+        return "Hihi, c'est pas protegé !";
+    }
+
+    @Public()
+    @Get('verify-email')
+    async verifyEmail(@Query('token') token: string) {
+        const tokenData = await this.prisma.emailVerificationToken.findUnique({
+            where: {token},
+            include: {user: true}
+        });
+
+        if (!tokenData || tokenData.expiresAt < new Date()) {
+            throw new BadRequestException('Token invalide ou expiré.');
+        }
+
+        await this.prisma.user.update({
+            where: {id: tokenData.user.id},
+            data: {emailVerified: true},
+        });
+
+        await this.prisma.emailVerificationToken.delete({
+            where: {token},
+        });
+
+        return {message: 'Ton adresse email a bien été vérifiée.'};
+    }
+
+    @Public()
+    @Post('signin')
+    async login(@Body() dto: SignInDto) {
+        const user = await this.authService.validateUser(dto.email, dto.password);
+        return this.authService.login(user);
+    }
+
+
+    @Public()
+    @Post('signup')
+    async signUp(@Body() signUpDto: SignUpDto) {
+        const user = await this.authService.createUser(signUpDto);
+        return this.authService.sendEmailVerification(user);
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('profile')
+    getProfile(@GetCurrentUser('email') email: string) {
+        return this.usersService.getByEmail(email)
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('users')
+    findAll() {
+        return this.usersService.findAll();
+    }
+
+    @UseGuards(RtAuthGuard)
+    @Get('refresh')
+    refresh(@Req() req: any) {
+        const user = req.user;
+        return this.authService.refreshToken(user.email, user.refreshToken);
+    }
+
+    @UseGuards(RtAuthGuard)
+    @Post('refresh')
+    refreshToken(
+        @GetCurrentUser('email') email: string,
+        @GetCurrentUser('refreshToken') refreshToken: string,
+    ) {
+        return this.authService.refreshToken(email, refreshToken);
+    }
+
+
+
+    /*    @UseGuards(LocalAuthGuard)
+        @Post('auth/logout')
+        async logout(@Req() req: RequestWithUser) {
+            return req.logout();
+            }*/
+
+
+}
 
 
 

@@ -3,14 +3,22 @@ import { CreateLanguageDto } from './dto/create-language.dto';
 import { UpdateLanguageDto } from './dto/update-language.dto';
 import {PrismaService} from "../../prisma/prisma.service";
 import {language} from "@prisma/client";
+import {HttpService} from "@nestjs/axios";
+import {Observable} from "rxjs";
+import {AxiosResponse} from "axios";
+
+
 
 
 @Injectable()
 export class LanguagesService {
     constructor(
         private prisma: PrismaService,
+        private readonly httpService: HttpService,
     ) {
     }
+
+
 
     findAll() {
         return this.prisma.language.findMany({

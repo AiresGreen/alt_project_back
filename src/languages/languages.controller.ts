@@ -5,14 +5,24 @@ import { UpdateLanguageDto } from './dto/update-language.dto';
 import {PrismaService} from "../../prisma/prisma.service";
 import {Public} from "../auth/decorator/public.decorator";
 import { RequestWithUser } from 'src/auth/auth.controller';
+import {Observable} from "rxjs";
+import {AxiosResponse} from "axios";
+import {language} from "@prisma/client";
+import {HttpService} from "@nestjs/axios";
 
 
 @Controller('languages')
 export class LanguagesController {
   constructor(private readonly languagesService: LanguagesService,
-              private prisma: PrismaService,) {
+              private prisma: PrismaService,
+              private readonly httpService: HttpService,) {
   }
 
+// === Récup des langues d'un API ===
+  @Get()
+  async getLanguages(): Promise<Observable<AxiosResponse<language[]>>> {
+    return this.httpService.get( 'https://global.metadapi.com/lang/v1/languages')
+  }
 
   @Get()
   findAll() {

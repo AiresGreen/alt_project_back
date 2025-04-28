@@ -1,8 +1,9 @@
 import {
+    BadRequestException,
     Body,
     Controller,
     Get,
-    Post, Req,
+    Post, Query, Req,
     UseGuards
 } from '@nestjs/common';
 import {AuthService, payload} from './auth.service';
@@ -14,7 +15,7 @@ import {SignUpDto} from "./dto/sign-up.dto";
 import {UsersService} from "../users/users.service";
 import {AuthGuard} from "./guards/auth.guard";
 import {RtAuthGuard} from "./guards/rt-auth.guard";
-
+import {PrismaService} from "../../prisma/prisma.service";
 
 
 export type RequestWithUser = Request & { user: payload; };
@@ -25,6 +26,7 @@ export class AuthController {
     constructor(
         private authService: AuthService,
         private usersService: UsersService,
+        private prisma: PrismaService,
     ) {
     }
 
@@ -34,8 +36,29 @@ export class AuthController {
         return "Hihi, c'est pas protegé !";
     }
 
+    @Public()
+    @Get('verify-email')
+    async verifyEmail(@Query('token') token: string) {
+        const tokenData = await this.prisma.emailVerificationToken.findUnique({
+            where: {token},
+            include: {user: true}
+        });
 
+        if (!tokenData || tokenData.expiresAt < new Date()) {
+            throw new BadRequestException('Token invalide ou expiré.');
+        }
 
+        await this.prisma.user.update({
+            where: {id: tokenData.user.id},
+            data: {emailVerified: true},
+        });
+
+        await this.prisma.emailVerificationToken.delete({
+            where: {token},
+        });
+
+        return {message: 'Ton adresse email a bien été vérifiée.'};
+    }
 
     @Public()
     @Post('signin')
@@ -49,7 +72,7 @@ export class AuthController {
     @Post('signup')
     async signUp(@Body() signUpDto: SignUpDto) {
         const user = await this.authService.createUser(signUpDto);
-        return this.authService.login(user);
+        return this.authService.sendEmailVerification(user);
     }
 
     @UseGuards(AuthGuard)

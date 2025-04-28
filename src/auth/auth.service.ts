@@ -6,6 +6,9 @@ import {PrismaService} from "../../prisma/prisma.service";
 import {SignInDto} from "./dto/sign-in.dto";
 import {SignUpDto} from "./dto/sign-up.dto";
 import {ConfigService} from "@nestjs/config";
+import * as crypto from "crypto";
+import {MailService} from "../mail/mail.service";
+
 
 
 export type payload = {
@@ -24,6 +27,7 @@ export class AuthService {
         private prisma: PrismaService,
         private jwtService: JwtService,
         private config: ConfigService,
+        private mailService: MailService,
     ) {
     }
 
@@ -51,6 +55,24 @@ export class AuthService {
     }
 
 
+    async sendEmailVerification(user: any) {
+        const token = crypto.randomBytes(32).toString('hex');
+
+        await this.prisma.emailVerificationToken.create({
+            data: {
+                token,
+                user: { connect: { id: user.id } },
+                expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24h,
+            },
+        });
+
+        await this.mailService.sendVerificationEmail(user.email, token);
+        console.log("🚀 ~ sendEmailVerification ~ this.mailService: ", this.mailService);
+
+
+    }
+
+
     async signIn(body: SignInDto)/*: Promise<{ access_token: string, refresh_token:string }>*/ {
         const user = await this.usersService.getByEmail(body.email);
         if (!user || !(await argon2.verify(user.password, body.password))) {
@@ -59,10 +81,13 @@ export class AuthService {
         return user;
     }
 
+
     async validateUser(email: string, password: string) {
         const user = await this.prisma.user.findUnique({ where: { email } });
         if (!user || !(await argon2.verify(user.password, password))) {
             throw new UnauthorizedException('Invalid credentials');
+        } else if (!user.emailVerified) {
+            throw new ForbiddenException("Tu dois d'abord valider ton adresse email.");
         }
         return user;
     }
@@ -84,16 +109,16 @@ export class AuthService {
             secret: this.config.get('JWT_ACCESS_SECRET'),
             expiresIn: '3h',
         });
-        console.log("🚀 ~ generateTokens ~ accessToken: ", accessToken);
+        //console.log("🚀 ~ generateTokens ~ accessToken: ", accessToken);
 
         const refreshToken = this.jwtService.sign(payload, {
             secret: this.config.get('JWT_REFRESH_SECRET'),
             expiresIn: '1d',
         });
-        console.log("🚀 ~ generateTokens ~ refreshToken: ", refreshToken);
+        //console.log("🚀 ~ generateTokens ~ refreshToken: ", refreshToken);
 
         const hashedRt: string = await argon2.hash(refreshToken)
-        console.log("🚀 ~ generateTokens ~ hashedRt: ", hashedRt)
+       // console.log("🚀 ~ generateTokens ~ hashedRt: ", hashedRt)
 
         await this.prisma.user.upsert({
             where: {email: user.email},
@@ -107,10 +132,11 @@ export class AuthService {
         return {
             accessToken,
             refreshToken,
-            hashedRt,
         };
 
     }
+
+
 
     async refreshToken(email: string, refreshToken: string) {
         const user = await this.prisma.user.findUnique({
@@ -121,8 +147,6 @@ export class AuthService {
 
         return this.generateTokens(user);
     }
-
-
 
 }
 

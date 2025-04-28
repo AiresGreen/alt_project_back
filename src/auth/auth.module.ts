@@ -8,12 +8,13 @@ import {APP_GUARD} from "@nestjs/core";
 import {PassportModule} from "@nestjs/passport";
 import {ConfigService} from "@nestjs/config";
 import {AuthGuard} from "./guards/auth.guard";
+import {MailModule} from "../mail/mail.module";
 
 
 
 @Module({
   imports: [
-    UsersModule,
+    UsersModule, MailModule,
       PassportModule,
     JwtModule.register({
       global: true,

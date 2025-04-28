@@ -57,10 +57,12 @@ export class LanguagesService {
             language: {
               connectOrCreate: {
                 where: { name: dto.name },
-                create: { name: dto.name },
+                create: {
+                    name: dto.name,
+                    },
               },
             },
-            level: dto.level,
+              level: dto.level,
           },
           include: {
             language: { select: { name: true } },

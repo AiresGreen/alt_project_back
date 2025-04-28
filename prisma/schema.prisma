@@ -8,34 +8,46 @@ datasource db {
 }
 
 model user {
-  id         Int         @id @default(autoincrement())
-  firstname  String      @db.VarChar(50)
-  lastname   String      @db.VarChar(100)
-  email      String      @unique(map: "mail_UNIQUE")
-  password   String      @db.VarChar(255)
-  hashedRt   String? //hashed refresh token
-  created_at DateTime    @default(now())
-  updated_at DateTime?   @updatedAt
-  status     user_status @default(inscription_non_valid_e)
-  profil_id  Int
-  level_id   Int
+  id            Int         @id @default(autoincrement())
+  firstname     String      @db.VarChar(50)
+  lastname      String      @db.VarChar(100)
+  email         String      @unique(map: "mail_UNIQUE")
+  emailVerified Boolean     @default(false) //
+  password      String      @db.VarChar(255)
+  hashedRt      String? //hashed refresh token
+  created_at    DateTime    @default(now())
+  updated_at    DateTime?   @updatedAt
+  status        user_status @default(inscription_non_valid_e)
+  profil_id     Int
+  level_id      Int
 
-  profil             profil               @relation(fields: [profil_id], references: [id])
-  level              level                @relation(fields: [level_id], references: [id])
-  curriculum_vitae   curriculum_vitae[]
-  education          education[]
-  experience         experience[]
-  hobby              hobby[]
-  project            project[]
-  skill              skill[]
-  useful_information useful_information[]
-  application        application[]
-  user_has_language  user_has_language[]
-  user_has_offer     user_has_offer[]
-  offer              offer[]
+  profil                 profil                   @relation(fields: [profil_id], references: [id])
+  level                  level                    @relation(fields: [level_id], references: [id])
+  curriculum_vitae       curriculum_vitae[]
+  education              education[]
+  experience             experience[]
+  hobby                  hobby[]
+  project                project[]
+  skill                  skill[]
+  useful_information     useful_information[]
+  application            application[]
+  user_has_language      user_has_language[]
+  user_has_offer         user_has_offer[]
+  offer                  offer[]
+  EmailVerificationToken EmailVerificationToken[]
 
   @@index([profil_id])
   @@index([level_id])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  userId Int
+  user   user @relation(fields: [userId], references: [id])
 }
 
 model profil {

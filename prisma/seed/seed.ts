@@ -9,7 +9,28 @@ import {
     answer,
     enterprise,
     survey,
-    user, curriculum_vitae, $Enums, offer, application, user_has_language, user_has_offer,
+    user,
+    curriculum_vitae,
+    $Enums,
+    offer,
+    application,
+    user_has_language,
+    user_has_offer,
+    project,
+    skill,
+    hobby,
+    useful_information,
+    curriculum_vitae_has_language,
+    curriculum_vitae_has_useful_information,
+    curriculum_vitae_has_hobby,
+    curriculum_vitae_has_skill,
+    curriculum_vitae_has_project,
+    curriculum_vitae_has_experience,
+    curriculum_vitae_has_education,
+    survey_has_answer,
+    survey_has_question,
+    question_has_answer,
+
 
 } from '@prisma/client'
 import {fakerFR, fakerFR as faker} from '@faker-js/faker'
@@ -151,9 +172,10 @@ async function seedCurriculumVitae(n = 10, users: user[]) {
              })
          );
 
-         const languages = response.data.data;
+         const data = response.data.data;
+         const languages: language[] = []
 
-         for (const lang of languages) {
+         for (const lang of data) {
              await prisma.language.upsert({
                  where: {langEnglishName: lang.langEnglishName},
                  update: {},
@@ -162,7 +184,9 @@ async function seedCurriculumVitae(n = 10, users: user[]) {
 
                  },
              });
+            languages.push(lang)
          }
+         return languages;
      }
 
 // === Question ===
@@ -348,31 +372,88 @@ async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: en
          }
      }
 
+     // === Projets ===
+
+
+
+
 // === User Has ===
-     /*async function seedUserHasLanguage(n = 3, users: user[], languages: language[]) {
-         const links: user_has_language[] = []
-         while (n) {
-             const newLink = await prisma.user_has_language.create({
-                 data: {
-                     user: {connect: {id: faker.helpers.arrayElement(users).id}},
-                     language: {connect: {id: faker.helpers.arrayElement(languages).id}}
-                 }
-             })
-             links.push(newLink)
-             n--
-         }
-         return links
-     }*/
+async function seedUserHasLanguage(n = 3, users: user[], languages: language[]) {
+    const links: user_has_language[] = [];
+
+    if (!users?.length || !languages?.length) {
+        throw new Error('Aucun utilisateur ou langue disponible.');
+    }
+
+    while (n>0) {
+        const user = users[Math.floor(Math.random() * users.length)];
+        const lang = languages[Math.floor(Math.random() * languages.length)];
+
+        const alreadyExists = await prisma.user_has_language.findUnique({
+            where: {
+                user_id_language_id: {
+                    user_id: user.id,
+                    language_id: lang.id,
+                },
+            }
+        });
+
+        if (!lang?.id) {
+            console.warn(`⛔ Langue invalide ou sans id :`, lang);
+            continue;
+        }
+
+        if (alreadyExists) continue;
+
+        const levels = Object.values(language_level_of_language);
+        const newLink = await prisma.user_has_language.create({
+            data: {
+                user: { connect: { id: user.id } },
+                language: { connect: { id: lang.id } },
+                level: levels[Math.floor(Math.random() * levels.length)],
+            },
+        });
+
+        links.push(newLink);
+        n--;
+    }
+
+    console.log(`✅ ${links.length} liens user_has_language créés.`);
+    return links;
+}
+
 
      async function seedUserHasOffer(n = 20, users: user[], offers: offer[]) {
          const links: user_has_offer[] = []
+         if (!users?.length || !offers?.length) {
+             throw new Error('Aucun utilisateur ou offre disponible.');
+         }
          while (n) {
-             const newLink = await prisma.user_has_offer.create({
-                 data: {
-                     user: {connect: {id: faker.helpers.arrayElement(users).id}},
-                     offer: {connect: {id: faker.helpers.arrayElement(offers).id}}
-                 }
-             })
+             const user = users[Math.floor(Math.random() * users.length)];
+             const offer = offers[Math.floor(Math.random() * offers.length)];
+
+             const alreadyExists = await prisma.user_has_offer.findFirst({
+                 where: {
+                     user_id: user.id,
+                     offer_id: offer.id,
+                 },
+             });
+
+             if (alreadyExists) continue;
+
+             const newLink = await prisma.user_has_offer.upsert({
+                 where: {
+                     user_id_offer_id: {
+                         user_id: user.id,
+                         offer_id: offer.id,
+                     },
+                 },
+                 update: {},
+                 create: {
+                     user: { connect: { id: user.id } },
+                     offer: { connect: { id: offer.id } },
+                 },
+             });
              links.push(newLink)
              n--
          }
@@ -381,24 +462,46 @@ async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: en
 
 
 // === CV Has ===
-     async function seedCVHasSkills(n = 10, cvs: curriculum_vitae[], users: user[]): Promise<void> {
-         while (n) {
-             await prisma.curriculum_vitae_has_skill.create({
-                 data: {
-                     curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
-                     skill: {
-                         create: {
-                             name: faker.hacker.noun(),
-                             user: {connect: {id: faker.helpers.arrayElement(users).id}}
-                         }
-                     }
-                 }
-             })
-             n--
+ /*    async function seedCVHasSkills(n = 10, cvs: curriculum_vitae[], skills: skill[]): Promise<void> {
+         if (!cvs?.length || !skills?.length) {
+             throw new Error('❌ cvs, users ou skills non fournis');
          }
-     }
 
-     async function seedCVHasProjects(n = 6, cvs: curriculum_vitae[], users: user[]): Promise<void> {
+        while (n) {
+            const cv = cvs[Math.floor(Math.random() * cvs.length)];
+            const selectedSkill = skills[Math.floor(Math.random() * skills.length)];
+
+            const existsAlready = await prisma.curriculum_vitae_has_skill.findUnique({
+                where: {
+                    curriculum_vitae_id_skill_id: {
+                        curriculum_vitae_id: cv.id,
+                        skill_id: selectedSkill.id,
+                    },
+                },
+            });
+
+            if (existsAlready) continue;
+
+            await prisma.curriculum_vitae_has_skill.upsert({
+                where: {
+                    curriculum_vitae_id_skill_id: {
+                        curriculum_vitae_id: cv.id,
+                        skill_id: selectedSkill.id,
+                    },
+                },
+                update: {},
+                create: {
+                    curriculum_vitae: { connect: { id: cv.id } },
+                    skill: { connect: { id: selectedSkill.id } },
+                },
+            });
+
+            n--;
+        }
+
+     }*/
+
+ /*    async function seedCVHasProjects(n = 6, cvs: curriculum_vitae[], users: user[]): Promise<void> {
          while (n) {
              await prisma.curriculum_vitae_has_project.create({
                  data: {
@@ -437,7 +540,8 @@ async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: en
              n--
          }
      }
-
+*/
+/*
      async function seedCVHasUsefulInfos(n = 6, cvs: curriculum_vitae[], users: user[]): Promise<void> {
          while (n) {
              await prisma.curriculum_vitae_has_useful_information.create({
@@ -454,17 +558,49 @@ async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: en
              n--
          }
      }
+*/
 
-     async function seedCVHasLanguages(n = 4, cvs: curriculum_vitae[], languages: language[]): Promise<void> {
-         while (n) {
-             await prisma.curriculum_vitae_has_language.create({
-                 data: {
-                     curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
-                     language: {connect: {id: faker.helpers.arrayElement(languages).id}}
-                 }
-             })
-             n--
+     async function seedCVHasLanguages(n = 4, cvs: curriculum_vitae[], languages: language[]) {
+         const links: curriculum_vitae_has_language[] = [];
+
+         if (!cvs?.length || !languages?.length) {
+             throw new Error('Aucun cv ou langue disponible.');
          }
+
+         while (n) {
+             const cv = cvs[Math.floor(Math.random() * cvs.length)];
+             const lang = languages[Math.floor(Math.random() * languages.length)];
+
+             const alreadyExists = await prisma.curriculum_vitae_has_language.findFirst({
+                 where: {
+                     curriculum_vitae_id: cv.id,
+                     language_id: lang.id,
+                 },
+             });
+
+             if (alreadyExists) continue;
+
+             const newLink = await prisma.curriculum_vitae_has_language.upsert({
+                 where: {
+                     curriculum_vitae_id_language_id: {
+                         curriculum_vitae_id: cv.id,
+                         language_id: lang.id,
+                     },
+                 },
+                 update: {},
+                 create: {
+                     curriculum_vitae: {connect: {id: cv.id}},
+                     language: {connect: {id: lang.id}},
+
+                 },
+             });
+
+             links.push(newLink);
+             n--;
+         }
+
+         console.log(`✅ ${links.length} liens user_has_language créés.`);
+
      }
 
 
@@ -476,13 +612,13 @@ async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: en
          const enterprises = await seedEnterprise()
          const offers = await seedOfferFromFranceTravail(10, users, enterprises)
          const languages = await seedLanguage()
-         // await seedUserHasLanguage(20, users, languages)
+         await seedUserHasLanguage(20, users, languages)
          await seedUserHasOffer(20, users, offers)
-         await seedCVHasSkills(20, cvs, users)
+         /*await seedCVHasSkills(20, cvs, users)
          await seedCVHasProjects(20, cvs, users)
          await seedCVHasHobbies(20, cvs, users)
-         await seedCVHasUsefulInfos(20, cvs, users)
-         // await seedCVHasLanguages(20, cvs, languages)
+         await seedCVHasUsefulInfos(20, cvs, users)*/
+         await seedCVHasLanguages(20, cvs, languages)
          await seedEducation(20, users, cvs)
          await seedExperience(20, users, cvs)
          await seedQuestion()

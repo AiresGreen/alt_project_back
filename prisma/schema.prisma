@@ -93,6 +93,7 @@ model curriculum_vitae {
   curriculum_vitae_has_project            curriculum_vitae_has_project[]
   curriculum_vitae_has_skill              curriculum_vitae_has_skill[]
   curriculum_vitae_has_useful_information curriculum_vitae_has_useful_information[]
+  skill                                   skill[]
 
   @@index([user_id])
 }
@@ -192,18 +193,21 @@ model project {
   user                         user                           @relation(fields: [user_id], references: [id])
   curriculum_vitae_has_project curriculum_vitae_has_project[]
 
-  @@index([user_id])
+  @@unique([user_id])
 }
 
 model skill {
-  id      Int     @id @default(autoincrement())
-  name    String? @db.VarChar(255)
-  user_id Int
+  id                  Int     @id @default(autoincrement())
+  name                String? @db.VarChar(255)
+  user_id             Int
+  curriculum_vitae_id Int
 
   user                       user                         @relation(fields: [user_id], references: [id])
+  curriculum_vitae           curriculum_vitae             @relation(fields: [curriculum_vitae_id], references: [id])
   curriculum_vitae_has_skill curriculum_vitae_has_skill[]
 
   @@index([user_id])
+  @@index([curriculum_vitae_id])
 }
 
 model hobby {
@@ -337,6 +341,7 @@ model curriculum_vitae_has_skill {
   curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
   skill            skill            @relation(fields: [skill_id], references: [id])
 
+  @@unique([curriculum_vitae_id, skill_id])
   @@index([curriculum_vitae_id])
   @@index([skill_id])
 }
@@ -361,6 +366,7 @@ model curriculum_vitae_has_language {
   curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
   language         language         @relation(fields: [language_id], references: [id])
 
+  @@unique([curriculum_vitae_id, language_id])
   @@index([curriculum_vitae_id])
   @@index([language_id])
 }
@@ -400,6 +406,7 @@ model user_has_offer {
   user  user  @relation(fields: [user_id], references: [id])
   offer offer @relation(fields: [offer_id], references: [id])
 
+  @@unique([user_id, offer_id])
   @@index([user_id])
   @@index([offer_id])
 }

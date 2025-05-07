@@ -1,3 +1,4 @@
+/*
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -32,3 +33,4 @@ export class ProfileController {
     return this.profileService.remove(+id);
   }
 }
+*/

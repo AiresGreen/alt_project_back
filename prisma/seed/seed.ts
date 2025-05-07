@@ -16,7 +16,26 @@ import {fakerFR, fakerFR as faker} from '@faker-js/faker'
 import * as argon2 from 'argon2'
 import {firstValueFrom} from "rxjs";
 import {HttpService} from "@nestjs/axios";
+import axios from 'axios';
 
+type AuthResponse = {
+    access_token: string;
+    token_type: string;
+    expires_in: number;
+};
+
+type JobOfferAPI = {
+    intitule: string;
+    description?: string;
+    dateCreation?: string;
+    entreprise?: { nom: string };
+    lieuTravail?: { libelle: string };
+    typeContratLibelle?: string;
+};
+
+type JobSearchResponse = {
+    resultats: JobOfferAPI[];
+};
 
 const prisma = new PrismaClient()
 const httpService = new HttpService();
@@ -211,27 +230,55 @@ async function seedCurriculumVitae(n = 10, users: user[]) {
      }
 
 // === Offer ===
-     async function seedOffer(n = 10, users: user[], enterprises: enterprise[]) {
-         const offers: offer[] = []
-         while (n) {
-             const newOffer = await prisma.offer.create({
-                 data: {
-                     title: faker.commerce.productName(),
-                     description: faker.commerce.productDescription(),
-                     publication_date: faker.date.recent(),
-                     user: {
-                         connect: {id: faker.helpers.arrayElement(users).id}
-                     },
-                     enterprise: {
-                         connect: {id: faker.helpers.arrayElement(enterprises).id}
-                     }
-                 }
-             })
-             offers.push(newOffer)
-             n--
-         }
-         return offers
-     }
+
+async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: enterprise[]) {
+    const clientId = process.env.FRANCE_TRAVAIL_CLIENT_ID!;
+    const clientSecret = process.env.FRANCE_TRAVAIL_CLIENT_SECRET!;
+
+    // Auth
+    const authResponse = await axios.post<AuthResponse>(
+        'https://entreprise.pole-emploi.fr/connexion/oauth2/access_token?realm=/partenaire',
+        new URLSearchParams({
+            grant_type: 'client_credentials',
+            client_id: clientId,
+            client_secret: clientSecret,
+            scope: 'api_offresdemploiv2 o2dsoffre',
+        }),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+
+    const token = authResponse.data.access_token;
+
+    // Offres
+    const jobResponse = await axios.get<JobSearchResponse>(
+        'https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search',
+        {
+            headers: { Authorization: `Bearer ${token}` },
+            params: {
+                motsCles: 'développeur',
+                departement: '75',
+                range: `0-${n - 1}`,
+            },
+        }
+    );
+
+    const offers: offer[] = [];
+
+    for (const o of jobResponse.data.resultats) {
+        const offer = await prisma.offer.create({
+            data: {
+                title: o.intitule,
+                description: o.description || '',
+                publication_date: new Date(o.dateCreation || Date.now()),
+                user: { connect: { id: faker.helpers.arrayElement(users).id } },
+                enterprise: { connect: { id: faker.helpers.arrayElement(enterprises).id } },
+            },
+        });
+        offers.push(offer);
+    }
+
+    return offers;
+}
 
 // === Application ===
      async function seedApplication(n = 10, users: user[], offers: offer[], cvs: curriculum_vitae[], surveys: survey[]): Promise<application[]> {
@@ -427,7 +474,7 @@ async function seedCurriculumVitae(n = 10, users: user[]) {
          const users = await seedUser(10, profils, levels)
          const cvs = await seedCurriculumVitae(10, users)
          const enterprises = await seedEnterprise()
-         const offers = await seedOffer(10, users, enterprises)
+         const offers = await seedOfferFromFranceTravail(10, users, enterprises)
          const languages = await seedLanguage()
          // await seedUserHasLanguage(20, users, languages)
          await seedUserHasOffer(20, users, offers)

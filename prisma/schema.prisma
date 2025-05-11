@@ -192,13 +192,11 @@ model project {
 
   user                         user                           @relation(fields: [user_id], references: [id])
   curriculum_vitae_has_project curriculum_vitae_has_project[]
-
-  @@unique([user_id])
 }
 
 model skill {
-  id                  Int     @id @default(autoincrement())
-  name                String? @db.VarChar(255)
+  id                  Int    @id @default(autoincrement())
+  name                String @db.VarChar(255)
   user_id             Int
   curriculum_vitae_id Int
 
@@ -317,8 +315,8 @@ model curriculum_vitae_has_experience {
   curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
   experience       experience       @relation(fields: [experience_id], references: [id])
 
-  @@index([curriculum_vitae_id])
   @@index([experience_id])
+  @@index([curriculum_vitae_id])
 }
 
 model curriculum_vitae_has_project {

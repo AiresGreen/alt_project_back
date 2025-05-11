@@ -373,7 +373,49 @@ async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: en
      }
 
      // === Projets ===
-
+    async function seedProject (n=9, users: user[], cvs: curriculum_vitae[]): Promise<void> {
+    const projectNames = [
+            "Portfolio React",
+            "Bot Discord en Node.js",
+            "Clone de Trello",
+            "Application météo avec API",
+            "Gestionnaire de tâches",
+            "Landing page responsive",
+            "CV interactif avec export PDF",
+            "Projet CRM - BalanceTonJob.io",
+            "Module Auth avec JWT",
+            "Explorateur d’API REST",
+            "Test e2e Cypress",
+            "Dashboard en React + Tailwind",
+            "Application PWA de notes",
+            "Jeu de quiz HTML/CSS/JS",
+            "Backoffice Admin en NestJS",
+            "Blog technique avec Markdown",
+            "Suivi de dépenses personnelles",
+            "Générateur de CV dynamique",
+            "Application de chat temps réel",
+            "Visualiseur de données avec Chart.js"
+        ]
+    while (n) {
+        await prisma.curriculum_vitae_has_project.create({
+            data: {
+                curriculum_vitae: {connect: {id: faker.helpers.arrayElement(cvs).id}},
+                project: {
+                    create: {
+                        name: faker.helpers.arrayElement(projectNames),
+                        year_of_beginning: faker.number.int(4),
+                        end_year: faker.number.int(4),
+                        place: faker.location.city(),
+                        results: faker.lorem.sentence(),
+                        created_at: faker.date.past(),
+                        updated_at: faker.date.recent(),
+                        user: {connect: {id: faker.helpers.arrayElement(users).id}},
+                    }
+                }
+            }
+        })
+    }
+    }
 
 
 

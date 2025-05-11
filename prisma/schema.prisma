@@ -182,8 +182,8 @@ model experience {
 model project {
   id                Int       @id @default(autoincrement())
   name              String    @db.VarChar(255)
-  year_of_beginning DateTime  @db.Date
-  end_year          DateTime  @db.Date
+  year_of_beginning Int
+  end_year          Int
   place             String    @db.VarChar(255)
   results           String    @db.VarChar(255)
   created_at        DateTime  @default(now())

@@ -6,10 +6,12 @@ import {LanguagesModule} from "./languages/languages.module";
 import {MailerModule} from '@nestjs-modules/mailer';
 import {HandlebarsAdapter} from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import {join} from 'path';
+import {OfferModule} from "./offer/offer.module";
+import {HomeModule} from "./home/home.module";
 
 
 @Module({
-    imports: [PrismaModule, UsersModule, AuthModule, LanguagesModule,
+    imports: [PrismaModule, UsersModule, AuthModule, LanguagesModule, HomeModule, OfferModule,
         MailerModule.forRootAsync({
             imports: undefined,
             useFactory: () => ({

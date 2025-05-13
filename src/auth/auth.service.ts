@@ -8,6 +8,8 @@ import {SignUpDto} from "./dto/sign-up.dto";
 import {ConfigService} from "@nestjs/config";
 import * as crypto from "crypto";
 import {MailService} from "../mail/mail.service";
+import {level_grade, profil, user} from "@prisma/client";
+import {faker} from "@faker-js/faker/locale/ar";
 
 
 
@@ -33,24 +35,49 @@ export class AuthService {
 
     async createUser(body: SignUpDto) {
         const hashedPassword = await argon2.hash(body.password);
+
         try {
-            return await this.prisma.user.create({
-                data: {
+            // Si aucun profil n'est fourni, on le crée automatiquement
+            const profil = body.profil_id
+                ? { id: body.profil_id }
+                : await this.prisma.profil.create({
+                    data: {
+                        phone_number: faker.phone.number(),
+                        picture: faker.image.avatar(),
+                        street: faker.location.streetAddress(),
+                        zip_code: faker.location.zipCode(),
+                        city: faker.location.city(),
+                    },
+                });
+
+            // Si aucun level_id n'est fourni, on récupère celui correspondant à "pas admin"
+            const level = body.level_id
+                ? { id: body.level_id }
+                : await this.prisma.level.findFirst({
+                    where: { grade: level_grade.pas_admin },
+                });
+
+            if (!level) {
+                throw new InternalServerErrorException("Niveau par défaut introuvable");
+            }
+
+            return await this.prisma.user.upsert({
+                where: {
                     email: body.email,
-                    password: hashedPassword,
+                },
+                update: {},
+                create: {
                     firstname: body.firstname,
                     lastname: body.lastname,
-                    profil: {
-                        connect: {id: Number(body.profilId)},
-                    },
-                    level: {
-                        connect: {id: Number(body.levelId)},
-                    },
+                    email: body.email,
+                    password: hashedPassword,
+                    profil_id: profil.id,
+                    level_id: level.id,
                 },
             });
         } catch (error) {
             console.log(error);
-            throw new InternalServerErrorException("User already exists");
+            throw new InternalServerErrorException("Erreur lors de la création de l'utilisateur");
         }
     }
 
@@ -93,7 +120,18 @@ export class AuthService {
     }
 
     async login(user: any) {
-        return await this.generateTokens(user);
+        const tokens = await this.generateTokens(user);
+
+        return {
+            ...tokens,
+            user: {
+                id: user.id,
+                email: user.email,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                emailVerified: user.emailVerified, // ✅ ajoute-le ici
+            }
+        };
     }
 
     async generateTokens(user: any) {

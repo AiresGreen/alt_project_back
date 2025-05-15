@@ -9,5 +9,6 @@ import {ConfigService} from "@nestjs/config";
   imports: [PrismaModule, HttpModule],
   controllers: [ProfileController, ConfigService],
   providers: [ProfileService],
+  exports: [ProfileService, ConfigService],
 })
 export class ProfileModule {}

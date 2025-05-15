@@ -18,10 +18,10 @@ model user {
   created_at    DateTime    @default(now())
   updated_at    DateTime?   @updatedAt
   status        user_status @default(inscription_non_valid_e)
-  profil_id     Int
+  profile_id    Int
   level_id      Int
 
-  profil                 profil                   @relation(fields: [profil_id], references: [id])
+  profile                profile                  @relation(fields: [profile_id], references: [id])
   level                  level                    @relation(fields: [level_id], references: [id])
   curriculum_vitae       curriculum_vitae[]
   education              education[]
@@ -36,7 +36,7 @@ model user {
   offer                  offer[]
   EmailVerificationToken EmailVerificationToken[]
 
-  @@index([profil_id])
+  @@index([profile_id])
   @@index([level_id])
 }
 
@@ -50,7 +50,7 @@ model EmailVerificationToken {
   user   user @relation(fields: [userId], references: [id])
 }
 
-model profil {
+model profile {
   id           Int       @id @default(autoincrement())
   picture      String    @db.VarChar(250)
   street       String    @db.VarChar(250)

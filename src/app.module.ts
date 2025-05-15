@@ -16,9 +16,8 @@ import {SkillsModule} from "./skills/skills.module";
 import {EntrepriseModule} from "./entreprise/entreprise.module";
 import {FavoriteModule} from "./favorite/favorite.module";
 import {FollowModule} from "./follow/follow.module";
-import {PersonalInfoModule} from "./personal-info/personal-info.module";
-import {ProfilePictureModule} from "./profile-picture/profile-picture.module";
 import {ProfileModule} from "./profile/profile.module";
+import { UsefulInfoModule } from './useful-info/useful-info.module';
 
 
 @Module({
@@ -36,8 +35,7 @@ import {ProfileModule} from "./profile/profile.module";
         EntrepriseModule,
         FavoriteModule,
         FollowModule,
-        PersonalInfoModule,
-        ProfilePictureModule,
+        UsefulInfoModule,
         ProfileModule,
         MailerModule.forRootAsync({
             imports: undefined,
@@ -62,7 +60,8 @@ import {ProfileModule} from "./profile/profile.module";
                     },
                 },
             }),
-        })
+        }),
+        UsefulInfoModule
     ],
 
 })

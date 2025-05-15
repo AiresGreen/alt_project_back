@@ -1,6 +1,6 @@
 import {
     PrismaClient,
-    profil,
+    profile,
     language,
     language_level_of_language,
     level,
@@ -62,11 +62,11 @@ const prisma = new PrismaClient()
 const httpService = new HttpService();
 
 // === Profil ===
-async function seedProfil(n = 10): Promise<profil[]> {
-    const profils: profil[] = []
+async function seedProfile(n = 10): Promise<profile[]> {
+    const profiles: profile[] = []
     while (n) {
         const phone_number = faker.phone.number()
-        const newProfil = await prisma.profil.upsert({
+        const newProfile = await prisma.profile.upsert({
             where: {phone_number},
             update: {},
             create: {
@@ -79,10 +79,10 @@ async function seedProfil(n = 10): Promise<profil[]> {
                 updated_at: faker.date.recent()
             }
         })
-        profils.push(newProfil)
+        profiles.push(newProfile)
         n--
     }
-    return profils
+    return profiles
 }
 
 // === Level ===
@@ -102,7 +102,7 @@ async function seedLevel() {
 }
 
 // === User ===
-async function seedUser(n = 10, profils: profil[], levels: level[]) {
+async function seedUser(n = 10, profiles: profile[], levels: level[]) {
     const users: user[] = []
     while (n) {
         const email = faker.internet.email()
@@ -116,8 +116,8 @@ async function seedUser(n = 10, profils: profil[], levels: level[]) {
                 password: await argon2.hash(faker.internet.password()),
                 created_at: faker.date.past(),
                 updated_at: faker.date.recent(),
-                profil: {
-                    connect: {id: faker.helpers.arrayElement(profils).id}
+                profile: {
+                    connect: {id: faker.helpers.arrayElement(profiles).id}
                 },
                 level: {
                     connect: {id: faker.helpers.arrayElement(levels).id}
@@ -681,7 +681,7 @@ async function seedCVHasLanguages(n = 4, cvs: curriculum_vitae[], languages: lan
 // ===Question Has Answer
 
 async function seedQuestionHasAnswer (n=5, questions: question[], answers: answer[]) {
- const links: question_has_answer[]=[]
+    const links: question_has_answer[]=[]
     if (!questions?.length || !answers?.length) {
         throw new Error('⛔Aucune question ou réponse trouvée.');
     }
@@ -805,8 +805,8 @@ async function seedSurveyHasAnswer (n=10, surveys:survey[], answers: answer[]) {
         const survey = surveys[Math.floor(Math.random() * surveys.length)];
         const alreadyExists = await prisma.survey_has_answer.findFirst({
             where: {
-                    answer_id: answer.id,
-                    survey_id: survey.id,
+                answer_id: answer.id,
+                survey_id: survey.id,
             }
         });
 
@@ -839,9 +839,9 @@ async function seedSurveyHasAnswer (n=10, surveys:survey[], answers: answer[]) {
 
 
 async function handleSeed() {
-    const profils = await seedProfil()
+    const profiles = await seedProfile()
     const levels = await seedLevel()
-    const users = await seedUser(10, profils, levels)
+    const users = await seedUser(10, profiles, levels)
     const cvs = await seedCurriculumVitae(10, users)
     const enterprises = await seedEnterprise()
     const offers = await seedOfferFromFranceTravail(10, users, enterprises)
@@ -876,7 +876,4 @@ handleSeed()
     .finally(async () => {
         await prisma.$disconnect()
     })
-
-
-
 

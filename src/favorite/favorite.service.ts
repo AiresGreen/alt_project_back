@@ -1,3 +1,4 @@
+/*
 import {Injectable, NotFoundException} from '@nestjs/common';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
@@ -12,7 +13,7 @@ export class FavoriteService {
 
 
   findAll() {
-    return this.prisma.favorite.findMany({
+   return this.prisma.favorite.findMany({
       select: {
         id: true,
         title: true,
@@ -38,3 +39,4 @@ export class FavoriteService {
   remove(id: number) {
   }
 }
+*/

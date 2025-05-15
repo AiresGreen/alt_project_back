@@ -1,26 +1,87 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import { CreateExperienceDto } from './dto/create-experience.dto';
 import { UpdateExperienceDto } from './dto/update-experience.dto';
+import {PrismaService} from "../../prisma/prisma.service";
+import {curriculum_vitae} from "@prisma/client";
+import {UpdateEducationDto} from "../education/dto/update-education.dto";
 
 @Injectable()
 export class ExperienceService {
-  create(createExperienceDto: CreateExperienceDto) {
-    return 'This action adds a new experience';
+  constructor(
+      private prisma: PrismaService,
+  ) {}
+
+
+
+  async create(body: CreateExperienceDto, curriculum_vitae_id: number) {
+    const experience = await this.prisma.experience.findUnique({
+      where: {id: body.id},
+    });
+    if (!experience) throw new NotFoundException('experience not found');
+
+    return this.prisma.curriculum_vitae_has_experience.upsert({
+          where: {
+            curriculum_vitae_id_experience_id:
+                {
+                  curriculum_vitae_id: curriculum_vitae_id,
+                  experience_id: experience.id,
+                }
+          },
+          update: {},
+          create: {
+            curriculum_vitae: {connect: {id: curriculum_vitae_id}},
+            experience: {connect: {id: experience.id}},
+          },
+        include: {
+              experience: {select: {id: true}},
+        },
+
+        }
+    )
+
   }
 
-  findAll() {
-    return `This action returns all experience`;
+  async findAll() {
+    return this.prisma.experience.findMany({
+        select: {
+            id: true,
+        }
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} experience`;
-  }
+    findOne(id: number) {
+        return this.prisma.experience.findUnique({
+            where: {id: id},
+        });
+    }
 
-  update(id: number, updateExperienceDto: UpdateExperienceDto) {
-    return `This action updates a #${id} experience`;
-  }
+    async update(id: number, body: UpdateExperienceDto, ) {
+        const experience = await this.prisma.experience.findUnique({
+            where: {id: body.id},
+        });
+        if (!experience) throw new NotFoundException(`Experience avec l'id: ${body.id}`);
 
-  remove(id: number) {
-    return `This action removes a #${id} experience`;
-  }
+        return this.prisma.experience.upsert({
+            where: {id: body.id},
+            update: {
+                ...experience,
+            },
+            create: {
+                ...experience,
+            }
+        })
+    }
+
+
+
+    async remove(id: number) {
+        const experience = await this.prisma.experience.findUnique({
+            where: {id: id},
+        });
+        if (!experience) throw new NotFoundException(`Experience avec l'id: ${id}`);
+
+        return this.prisma.experience.delete({
+            where: {id: experience.id},
+        })
+    }
 }

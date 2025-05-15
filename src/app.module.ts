@@ -8,10 +8,37 @@ import {HandlebarsAdapter} from '@nestjs-modules/mailer/dist/adapters/handlebars
 import {join} from 'path';
 import {OfferModule} from "./offer/offer.module";
 import {HomeModule} from "./home/home.module";
+import {EducationModule} from "./education/education.module";
+import {ExperienceModule} from "./experience/experience.module";
+import {HobbiesModule} from "./hobbies/hobbies.module";
+import {ProjectsModule} from "./projects/projects.module";
+import {SkillsModule} from "./skills/skills.module";
+import {EntrepriseModule} from "./entreprise/entreprise.module";
+import {FavoriteModule} from "./favorite/favorite.module";
+import {FollowModule} from "./follow/follow.module";
+import {PersonalInfoModule} from "./personal-info/personal-info.module";
+import {ProfilePictureModule} from "./profile-picture/profile-picture.module";
+import {ProfileModule} from "./profile/profile.module";
 
 
 @Module({
-    imports: [PrismaModule, UsersModule, AuthModule, LanguagesModule, HomeModule, OfferModule,
+    imports: [PrismaModule,
+        SkillsModule,
+        ProjectsModule,
+        HobbiesModule,
+        ExperienceModule,
+        EducationModule,
+        UsersModule,
+        AuthModule,
+        LanguagesModule,
+        HomeModule,
+        OfferModule,
+        EntrepriseModule,
+        FavoriteModule,
+        FollowModule,
+        PersonalInfoModule,
+        ProfilePictureModule,
+        ProfileModule,
         MailerModule.forRootAsync({
             imports: undefined,
             useFactory: () => ({
@@ -28,7 +55,7 @@ import {HomeModule} from "./home/home.module";
                     from: '"no-reply-BalanceTonJob.io" <noreply@balance-ton-job.fr>',
                 },
                 template: {
-                  dir: join(__dirname + '/templates/confirm'),
+                    dir: join(__dirname + '/templates/confirm'),
                     adapter: new HandlebarsAdapter(),
                     options: {
                         strict: true,
@@ -39,4 +66,5 @@ import {HomeModule} from "./home/home.module";
     ],
 
 })
-export class AppModule {}
+export class AppModule {
+}

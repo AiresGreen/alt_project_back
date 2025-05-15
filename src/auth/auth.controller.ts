@@ -72,7 +72,18 @@ export class AuthController {
     @Post('signup')
     async signUp(@Body() signUpDto: SignUpDto) {
         const user = await this.authService.createUser(signUpDto);
-        return this.authService.sendEmailVerification(user);
+        await this.authService.sendEmailVerification(user);
+
+        return {
+            message: "Utilisateur créé. Veuillez vérifier votre email.",
+            user: {
+                id: user.id,
+                email: user.email,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                emailVerified: user.emailVerified,
+            }
+        };
     }
 
     @UseGuards(AuthGuard)

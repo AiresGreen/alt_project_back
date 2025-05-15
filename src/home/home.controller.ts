@@ -4,8 +4,7 @@ import {PrismaService} from "../../prisma/prisma.service";
 
 @Controller('home')
 export class HomeController {
-  constructor(private readonly homeService: HomeService,
-              private prisma: PrismaService,) {}
+  constructor(private readonly homeService: HomeService,) {}
 
 
   @Get()

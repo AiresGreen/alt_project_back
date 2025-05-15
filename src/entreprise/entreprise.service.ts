@@ -1,26 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import { CreateEntrepriseDto } from './dto/create-entreprise.dto';
 import { UpdateEntrepriseDto } from './dto/update-entreprise.dto';
+import {PrismaService} from "../../prisma/prisma.service";
 
 @Injectable()
 export class EntrepriseService {
-  create(createEntrepriseDto: CreateEntrepriseDto) {
-    return 'This action adds a new entreprise';
-  }
+  constructor(
+      private prisma: PrismaService,
+  ) {}
+
 
   findAll() {
-    return `This action returns all entreprise`;
+    return this.prisma.enterprise.findMany({
+          select: {
+            id: true,
+            name: true,
+            employees: true,
+            description: true,
+          },
+        }
+    );
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} entreprise`;
+    const entreprise = this.prisma.enterprise.findUnique({
+      where: {
+        id: id,
+      }
+        });
+    if (!entreprise) throw new NotFoundException('Entreprise not found')
+        return entreprise;
   }
 
-  update(id: number, updateEntrepriseDto: UpdateEntrepriseDto) {
-    return `This action updates a #${id} entreprise`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} entreprise`;
-  }
 }

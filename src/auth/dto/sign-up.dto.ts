@@ -31,7 +31,9 @@ export class SignUpDto {
     @IsEnum(level_grade)
     level?: level_grade;
 
-
+    @IsOptional()
+    @IsString()
+    emailVerified?: boolean
 
 
 }

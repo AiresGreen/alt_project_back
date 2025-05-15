@@ -303,6 +303,7 @@ model curriculum_vitae_has_education {
   curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
   education        education        @relation(fields: [education_id], references: [id])
 
+  @@unique([curriculum_vitae_id, education_id])
   @@index([curriculum_vitae_id])
   @@index([education_id])
 }
@@ -315,6 +316,7 @@ model curriculum_vitae_has_experience {
   curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
   experience       experience       @relation(fields: [experience_id], references: [id])
 
+  @@unique([curriculum_vitae_id, experience_id])
   @@index([experience_id])
   @@index([curriculum_vitae_id])
 }
@@ -327,6 +329,7 @@ model curriculum_vitae_has_project {
   curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
   project          project          @relation(fields: [project_id], references: [id])
 
+  @@unique([curriculum_vitae_id, project_id])
   @@index([curriculum_vitae_id])
   @@index([project_id])
 }
@@ -352,6 +355,7 @@ model curriculum_vitae_has_hobby {
   curriculum_vitae curriculum_vitae @relation(fields: [curriculum_vitae_id], references: [id])
   hobby            hobby            @relation(fields: [hobby_id], references: [id])
 
+  @@unique([curriculum_vitae_id, hobby_id])
   @@index([curriculum_vitae_id])
   @@index([hobby_id])
 }
@@ -377,6 +381,7 @@ model curriculum_vitae_has_useful_information {
   curriculum_vitae   curriculum_vitae   @relation(fields: [curriculum_vitae_id], references: [id])
   useful_information useful_information @relation(fields: [useful_information_id], references: [id])
 
+  @@unique([curriculum_vitae_id, useful_information_id])
   @@index([curriculum_vitae_id])
   @@index([useful_information_id])
 }

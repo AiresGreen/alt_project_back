@@ -7,11 +7,6 @@ import { UpdateEntrepriseDto } from './dto/update-entreprise.dto';
 export class EntrepriseController {
   constructor(private readonly entrepriseService: EntrepriseService) {}
 
-  @Post()
-  create(@Body() createEntrepriseDto: CreateEntrepriseDto) {
-    return this.entrepriseService.create(createEntrepriseDto);
-  }
-
   @Get()
   findAll() {
     return this.entrepriseService.findAll();
@@ -22,13 +17,5 @@ export class EntrepriseController {
     return this.entrepriseService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEntrepriseDto: UpdateEntrepriseDto) {
-    return this.entrepriseService.update(+id, updateEntrepriseDto);
-  }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.entrepriseService.remove(+id);
-  }
 }

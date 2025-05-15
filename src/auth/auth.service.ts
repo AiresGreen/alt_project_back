@@ -73,11 +73,12 @@ export class AuthService {
                     password: hashedPassword,
                     profil_id: profil.id,
                     level_id: level.id,
+                    emailVerified: body.emailVerified,
                 },
             });
         } catch (error) {
             console.log(error);
-            throw new InternalServerErrorException("Erreur lors de la création de l'utilisateur");
+            throw new InternalServerErrorException("Erreur lors de la création de l'utilisateur hihi id");
         }
     }
 
@@ -129,7 +130,7 @@ export class AuthService {
                 email: user.email,
                 firstname: user.firstname,
                 lastname: user.lastname,
-                emailVerified: user.emailVerified, // ✅ ajoute-le ici
+                emailVerified: user.emailVerified,
             }
         };
     }

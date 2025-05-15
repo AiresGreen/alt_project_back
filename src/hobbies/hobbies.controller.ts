@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Put} from '@nestjs/common';
 import { HobbiesService } from './hobbies.service';
 import { CreateHobbyDto } from './dto/create-hobby.dto';
 import { UpdateHobbyDto } from './dto/update-hobby.dto';
@@ -8,8 +8,8 @@ export class HobbiesController {
   constructor(private readonly hobbiesService: HobbiesService) {}
 
   @Post()
-  create(@Body() createHobbyDto: CreateHobbyDto) {
-    return this.hobbiesService.create(createHobbyDto);
+  create(@Body() createHobbyDto: CreateHobbyDto, id:number, curriculum_vitae_id: number) {
+    return this.hobbiesService.create(createHobbyDto, id, curriculum_vitae_id);
   }
 
   @Get()
@@ -23,6 +23,7 @@ export class HobbiesController {
   }
 
   @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateHobbyDto: UpdateHobbyDto) {
     return this.hobbiesService.update(+id, updateHobbyDto);
   }

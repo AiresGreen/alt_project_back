@@ -1,26 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
+import {PrismaService} from "../../prisma/prisma.service";
 
 @Injectable()
 export class OfferService {
-  create(createOfferDto: CreateOfferDto) {
-    return 'This action adds a new offer';
+  constructor(
+      private prisma: PrismaService,
+  ) {
   }
 
+
   findAll() {
-    return `This action returns all offer`;
+    return this.prisma.offer.findMany({
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        publication_date: true,
+      },
+    })
+
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} offer`;
-  }
-
-  update(id: number, updateOfferDto: UpdateOfferDto) {
-    return `This action updates a #${id} offer`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} offer`;
+    try {
+      return this.prisma.offer.findUnique({
+        where: {
+          id: id,
+        }
+      });
+    } catch (error) {
+      throw new NotFoundException("Offre inexistant)");
+    }
   }
 }

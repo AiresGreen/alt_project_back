@@ -1,26 +1,75 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
+import {PrismaService} from "../../prisma/prisma.service";
+
 
 @Injectable()
 export class CvService {
-  create(createCvDto: CreateCvDto) {
-    return 'This action adds a new cv';
+  constructor(private prisma: PrismaService,) {}
+
+
+  async create(body: CreateCvDto) {
+    const cv = await this.prisma.curriculum_vitae.findUnique({
+      where: {phone_number: body.phone_number},
+    });
+    if (!cv) throw new NotFoundException(`Cv avec le tél: ${body.phone_number}`);
+
+    return this.prisma.curriculum_vitae.upsert({
+      where: {
+        phone_number:body.phone_number
+      },
+      update: {
+        ...body,
+      },
+      create: {
+        ...cv,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all cv`;
+  async findAll() {
+    return this.prisma.curriculum_vitae.findMany({
+      select: {
+        id: true,
+      }
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cv`;
+  findOne(phone_number: string) {
+    return this.prisma.curriculum_vitae.findUnique({
+      where: {phone_number: phone_number},
+    });
   }
 
-  update(id: number, updateCvDto: UpdateCvDto) {
-    return `This action updates a #${id} cv`;
+  async update(body: UpdateCvDto, phone_number:string) {
+    const cv = await this.prisma.curriculum_vitae.findUnique({
+      where: {phone_number: phone_number},
+    });
+    if (!cv) throw new NotFoundException(`Skill avec le titre: ${phone_number}`);
+
+    return this.prisma.curriculum_vitae.upsert({
+      where: {phone_number: phone_number},
+      update: {
+        ...body,
+      },
+      create: {
+        ...cv,
+      }
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cv`;
+
+
+  async remove(phone_number: string) {
+    const cv = await this.prisma.curriculum_vitae.findUnique({
+      where: {phone_number: phone_number},
+    });
+    if (!cv) throw new NotFoundException(`Cv avec le tél: ${phone_number}`);
+
+    return this.prisma.curriculum_vitae.delete({
+      where: {phone_number: phone_number},
+    })
   }
 }
+

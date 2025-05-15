@@ -15,9 +15,13 @@ import {ProjectsModule} from "./projects/projects.module";
 import {SkillsModule} from "./skills/skills.module";
 import {EntrepriseModule} from "./entreprise/entreprise.module";
 import {FavoriteModule} from "./favorite/favorite.module";
-import {FollowModule} from "./follow/follow.module";
 import {ProfileModule} from "./profile/profile.module";
 import { UsefulInfoModule } from './useful-info/useful-info.module';
+import {CvModule} from "./cv/cv.module";
+import { ApplicationModule } from './application/application.module';
+import { SurveyModule } from './survey/survey.module';
+import { QuestionModule } from './question/question.module';
+import { AnswerModule } from './answer/answer.module';
 
 
 @Module({
@@ -34,9 +38,13 @@ import { UsefulInfoModule } from './useful-info/useful-info.module';
         OfferModule,
         EntrepriseModule,
         FavoriteModule,
-        FollowModule,
         UsefulInfoModule,
         ProfileModule,
+        CvModule,
+        ApplicationModule,
+        SurveyModule,
+        QuestionModule,
+        AnswerModule,
         MailerModule.forRootAsync({
             imports: undefined,
             useFactory: () => ({
@@ -61,7 +69,11 @@ import { UsefulInfoModule } from './useful-info/useful-info.module';
                 },
             }),
         }),
-        UsefulInfoModule
+        UsefulInfoModule,
+        ApplicationModule,
+        SurveyModule,
+        QuestionModule,
+        AnswerModule
     ],
 
 })

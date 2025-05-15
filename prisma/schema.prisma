@@ -71,21 +71,24 @@ model level {
 }
 
 model curriculum_vitae {
-  id           Int       @id @default(autoincrement())
-  photo        String    @db.VarChar(250)
-  lastname     String    @db.VarChar(255)
-  firstname    String    @db.VarChar(255)
-  mail         String
-  street       String    @db.VarChar(250)
-  zip_code     String    @db.VarChar(10)
-  city         String    @db.VarChar(255)
-  phone_number String    @unique(map: "phone_number_UNIQUE") @db.VarChar(20)
-  created_at   DateTime  @default(now())
-  updated_at   DateTime? @updatedAt
-  user_id      Int
+  id             Int       @id @default(autoincrement())
+  photo          String    @db.VarChar(250)
+  lastname       String    @db.VarChar(255)
+  firstname      String    @db.VarChar(255)
+  mail           String
+  street         String    @db.VarChar(250)
+  zip_code       String    @db.VarChar(10)
+  city           String    @db.VarChar(255)
+  phone_number   String    @unique(map: "phone_number_UNIQUE") @db.VarChar(20)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime? @updatedAt
+  user_id        Int
+  application_id Int
+  skill_id       Int
 
   user                                    user                                      @relation(fields: [user_id], references: [id])
   application                             application[]
+  skill                                   skill[]
   curriculum_vitae_has_education          curriculum_vitae_has_education[]
   curriculum_vitae_has_experience         curriculum_vitae_has_experience[]
   curriculum_vitae_has_hobby              curriculum_vitae_has_hobby[]
@@ -93,7 +96,6 @@ model curriculum_vitae {
   curriculum_vitae_has_project            curriculum_vitae_has_project[]
   curriculum_vitae_has_skill              curriculum_vitae_has_skill[]
   curriculum_vitae_has_useful_information curriculum_vitae_has_useful_information[]
-  skill                                   skill[]
 
   @@index([user_id])
 }

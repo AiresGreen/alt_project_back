@@ -1,5 +1,4 @@
-/*
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Put} from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -18,19 +17,20 @@ export class ProfileController {
     return this.profileService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.profileService.findOne(+id);
+  @Get(':phone_number')
+  findOne(@Param('N tel:') phone_number: string) {
+    return this.profileService.findOne(phone_number);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
-    return this.profileService.update(+id, updateProfileDto);
+  @Patch(':phone_number')
+  @Put(':phone_number')
+  update(@Param('N tel:') phone_number: string, @Body() updateProfileDto: UpdateProfileDto) {
+    return this.profileService.update(phone_number, updateProfileDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.profileService.remove(+id);
+  @Delete(':phone_number')
+  remove(@Param('N tel:') phone_number: string) {
+    return this.profileService.remove(phone_number);
   }
 }
-*/
+

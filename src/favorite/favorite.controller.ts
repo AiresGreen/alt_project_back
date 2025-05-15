@@ -7,11 +7,6 @@ import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}
 
-  @Post()
-  create(@Body() createFavoriteDto: CreateFavoriteDto) {
-    return this.favoriteService.create(createFavoriteDto);
-  }
-
   @Get()
   findAll() {
     return this.favoriteService.findAll();
@@ -20,11 +15,6 @@ export class FavoriteController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.favoriteService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFavoriteDto: UpdateFavoriteDto) {
-    return this.favoriteService.update(+id, updateFavoriteDto);
   }
 
   @Delete(':id')

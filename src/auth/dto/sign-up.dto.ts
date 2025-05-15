@@ -1,4 +1,5 @@
-import {IsEmail, IsInt, IsNotEmpty, IsString} from "class-validator";
+import {IsEmail, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString} from "class-validator";
+import {level_grade, profil} from "@prisma/client";
 
 
 export class SignUpDto {
@@ -18,12 +19,21 @@ export class SignUpDto {
     @IsNotEmpty()
     lastname: string;
 
+    @IsOptional()
     @IsInt()
-    @IsNotEmpty()
-    profilId: number;
+    profil_id?: number;
+
+    @IsOptional()
+    @IsInt()
+    level_id?: number;
+
+    @IsOptional()
+    @IsEnum(level_grade)
+    level?: level_grade;
+
+    @IsOptional()
+    @IsString()
+    emailVerified?: boolean
 
 
-    @IsInt()
-    @IsNotEmpty()
-    levelId: number;
 }

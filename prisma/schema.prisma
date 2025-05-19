@@ -20,6 +20,7 @@ model user {
   status        user_status @default(inscription_non_valid_e)
   profile_id    Int
   level_id      Int
+  role          level_grade @default(pas_admin)
 
   profile                profile                  @relation(fields: [profile_id], references: [id])
   level                  level                    @relation(fields: [level_id], references: [id])

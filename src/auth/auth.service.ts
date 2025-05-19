@@ -103,7 +103,8 @@ export class AuthService {
 
     async signIn(body: SignInDto)/*: Promise<{ access_token: string, refresh_token:string }>*/ {
         const user = await this.usersService.getByEmail(body.email);
-        if (!user || !(await argon2.verify(user.password, body.password))) {
+        if (!user || !(await argon2.verify(user.password, body.password)))
+        {
             throw new UnauthorizedException("AS-signIn");
         }
         return user;

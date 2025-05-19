@@ -11,28 +11,18 @@ import {
     survey,
     user,
     curriculum_vitae,
-    $Enums,
     offer,
     application,
     user_has_language,
     user_has_offer,
-    project,
-    skill,
-    hobby,
-    useful_information,
-    curriculum_vitae_has_language,
-    curriculum_vitae_has_useful_information,
-    curriculum_vitae_has_hobby,
-    curriculum_vitae_has_skill,
-    curriculum_vitae_has_project,
-    curriculum_vitae_has_experience,
-    curriculum_vitae_has_education,
     survey_has_answer,
     survey_has_question,
     question_has_answer,
+    curriculum_vitae_has_language,
+    
 
 } from '@prisma/client'
-import {fakerFR, fakerFR as faker} from '@faker-js/faker'
+import { fakerFR as faker} from '@faker-js/faker'
 import * as argon2 from 'argon2'
 import {firstValueFrom} from "rxjs";
 import {HttpService} from "@nestjs/axios";
@@ -60,6 +50,7 @@ type JobSearchResponse = {
 const prisma = new PrismaClient()
 const httpService = new HttpService();
 
+
 // === Profil ===
 async function seedProfile(n = 10): Promise<profile[]> {
     const profiles: profile[] = []
@@ -84,6 +75,9 @@ async function seedProfile(n = 10): Promise<profile[]> {
     return profiles
 }
 
+
+
+
 // === Level ===
 async function seedLevel() {
     const grades = [level_grade.admin, level_grade.pas_admin];
@@ -100,9 +94,33 @@ async function seedLevel() {
     return levels
 }
 
-// === User ===
+// === User +admin ===
 async function seedUser(n = 10, profiles: profile[], levels: level[]) {
     const users: user[] = []
+
+    //  Ajouter un utilisateur admin
+    const adminUser = await prisma.user.upsert({
+        where: { email: 'admin@btj.io' },
+        update: {},
+        create: {
+            firstname: 'Admin',
+            lastname: 'User',
+            email: 'admin@btj.io',
+            password: await argon2.hash('AdminPassword123!'),
+            emailVerified: true,
+            created_at: new Date(),
+            profile: {
+                connect: { id: faker.helpers.arrayElement(profiles).id }
+            },
+            level: {
+                connect: { id: faker.helpers.arrayElement(levels).id }
+            },
+            role: 'admin',
+        },
+    });
+
+    users.push(adminUser);
+
     while (n) {
         const email = faker.internet.email()
         const newUser = await prisma.user.upsert({
@@ -127,6 +145,8 @@ async function seedUser(n = 10, profiles: profile[], levels: level[]) {
         n--
     }
     return users
+
+
 }
 
 // === Language ===
@@ -460,7 +480,7 @@ async function seedCurriculumVitae(n = 10, users: user[]) {
                 user: {
                     connect: {id: faker.helpers.arrayElement(users).id}
                 },
-                
+
             }
         })
         cvs.push(newCV)

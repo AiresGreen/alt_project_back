@@ -1,5 +1,5 @@
 import {IsEmail, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString} from "class-validator";
-import {level_grade, profil} from "@prisma/client";
+import {level_grade} from "@prisma/client";
 
 
 export class SignUpDto {

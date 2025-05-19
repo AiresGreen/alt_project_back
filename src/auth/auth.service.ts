@@ -8,7 +8,7 @@ import {SignUpDto} from "./dto/sign-up.dto";
 import {ConfigService} from "@nestjs/config";
 import * as crypto from "crypto";
 import {MailService} from "../mail/mail.service";
-import {level_grade, profil, user} from "@prisma/client";
+import {level_grade} from "@prisma/client";
 import {faker} from "@faker-js/faker/locale/ar";
 
 
@@ -40,7 +40,7 @@ export class AuthService {
             // Si aucun profil n'est fourni, on le crée automatiquement
             const profil = body.profil_id
                 ? { id: body.profil_id }
-                : await this.prisma.profil.create({
+                : await this.prisma.profile.create({
                     data: {
                         phone_number: faker.phone.number(),
                         picture: faker.image.avatar(),
@@ -71,7 +71,7 @@ export class AuthService {
                     lastname: body.lastname,
                     email: body.email,
                     password: hashedPassword,
-                    profil_id: profil.id,
+                    profile_id: profil.id,
                     level_id: level.id,
                     emailVerified: body.emailVerified,
                 },

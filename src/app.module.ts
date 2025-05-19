@@ -14,7 +14,6 @@ import {HobbiesModule} from "./hobbies/hobbies.module";
 import {ProjectsModule} from "./projects/projects.module";
 import {SkillsModule} from "./skills/skills.module";
 import {EntrepriseModule} from "./entreprise/entreprise.module";
-import {FavoriteModule} from "./favorite/favorite.module";
 import {ProfileModule} from "./profile/profile.module";
 import { UsefulInfoModule } from './useful-info/useful-info.module';
 import {CvModule} from "./cv/cv.module";
@@ -37,7 +36,6 @@ import { AnswerModule } from './answer/answer.module';
         HomeModule,
         OfferModule,
         EntrepriseModule,
-        FavoriteModule,
         UsefulInfoModule,
         ProfileModule,
         CvModule,

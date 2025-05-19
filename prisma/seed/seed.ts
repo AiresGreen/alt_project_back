@@ -31,7 +31,6 @@ import {
     survey_has_question,
     question_has_answer,
 
-
 } from '@prisma/client'
 import {fakerFR, fakerFR as faker} from '@faker-js/faker'
 import * as argon2 from 'argon2'
@@ -128,36 +127,6 @@ async function seedUser(n = 10, profiles: profile[], levels: level[]) {
         n--
     }
     return users
-}
-
-// === CV ===
-async function seedCurriculumVitae(n = 10, users: user[]) {
-    const cvs: curriculum_vitae[] = []
-    while (n) {
-        const phone_number = faker.phone.number()
-        const newCV = await prisma.curriculum_vitae.upsert({
-            where: {phone_number},
-            update: {},
-            create: {
-                photo: faker.image.urlPicsumPhotos(),
-                lastname: faker.person.lastName(),
-                firstname: faker.person.firstName(),
-                mail: faker.internet.email(),
-                street: faker.location.street(),
-                zip_code: faker.location.zipCode(),
-                city: faker.location.city(),
-                phone_number,
-                created_at: faker.date.past(),
-                updated_at: faker.date.recent(),
-                user: {
-                    connect: {id: faker.helpers.arrayElement(users).id}
-                }
-            }
-        })
-        cvs.push(newCV)
-        n--
-    }
-    return cvs
 }
 
 // === Language ===
@@ -467,6 +436,38 @@ async function seedSkill(n = 10, users: user[], cvs: curriculum_vitae[]): Promis
     }
 }
 
+
+
+// === CV ===
+async function seedCurriculumVitae(n = 10, users: user[]) {
+    const cvs: curriculum_vitae[] = []
+    while (n) {
+        const phone_number = faker.phone.number()
+        const newCV = await prisma.curriculum_vitae.upsert({
+            where: {phone_number},
+            update: {},
+            create: {
+                photo: faker.image.urlPicsumPhotos(),
+                lastname: faker.person.lastName(),
+                firstname: faker.person.firstName(),
+                mail: faker.internet.email(),
+                street: faker.location.street(),
+                zip_code: faker.location.zipCode(),
+                city: faker.location.city(),
+                phone_number,
+                created_at: faker.date.past(),
+                updated_at: faker.date.recent(),
+                user: {
+                    connect: {id: faker.helpers.arrayElement(users).id}
+                },
+                
+            }
+        })
+        cvs.push(newCV)
+        n--
+    }
+    return cvs
+}
 
 // === User Has ===
 async function seedUserHasLanguage(n = 3, users: user[], languages: language[]) {
@@ -838,34 +839,6 @@ async function seedSurveyHasAnswer (n=10, surveys:survey[], answers: answer[]) {
 
 
 
-async function handleSeed() {
-    const profiles = await seedProfile()
-    const levels = await seedLevel()
-    const users = await seedUser(10, profiles, levels)
-    const cvs = await seedCurriculumVitae(10, users)
-    const enterprises = await seedEnterprise()
-    const offers = await seedOfferFromFranceTravail(10, users, enterprises)
-    const languages = await seedLanguage()
-    const surveys = await seedSurvey()
-    const questions = await seedQuestion()
-    const answers = await seedAnswer()
-    await seedSkill(15, users, cvs)
-    await seedProject(5, users, cvs)
-    await seedUserHasLanguage(20, users, languages)
-    await seedUserHasOffer(20, users, offers)
-    await seedCVHasHobbies(20, cvs, users)
-    await seedCVHasUsefulInfos(20, cvs, users)
-    await seedCVHasLanguages(20, cvs, languages)
-    await seedEducation(20, users, cvs)
-    await seedExperience(20, users, cvs)
-    await seedApplication(10, users, offers, cvs, surveys)
-    await seedQuestionHasAnswer(15, questions, answers)
-    await seedSurveyHasQuestion(15, surveys, questions)
-    await seedSurveyHasAnswer(15, surveys, answers)
-
-}
-
-
 handleSeed()
     .then(() => {
         console.log('👽 Avec succès ton seed a été éffectué, Maître Yoda ! 👽')
@@ -877,3 +850,31 @@ handleSeed()
         await prisma.$disconnect()
     })
 
+
+
+async function handleSeed() {
+    const profiles = await seedProfile()
+    const levels = await seedLevel()
+    const languages = await seedLanguage()
+    const surveys = await seedSurvey()
+    const questions = await seedQuestion()
+    const answers = await seedAnswer()
+    const enterprises = await seedEnterprise()
+    const users = await seedUser(10, profiles, levels)
+    const offers = await seedOfferFromFranceTravail(10, users, enterprises)
+    const cvs = await seedCurriculumVitae(10, users )
+    await seedApplication(15, users, offers, cvs, surveys)
+    await seedSkill(15, users, cvs)
+    await seedProject(5, users, cvs)
+    await seedUserHasLanguage(20, users, languages)
+    await seedUserHasOffer(20, users, offers)
+    await seedCVHasHobbies(20, cvs, users)
+    await seedCVHasUsefulInfos(20, cvs, users)
+    await seedCVHasLanguages(20, cvs, languages)
+    await seedEducation(20, users, cvs)
+    await seedExperience(20, users, cvs)
+    await seedQuestionHasAnswer(15, questions, answers)
+    await seedSurveyHasQuestion(15, surveys, questions)
+    await seedSurveyHasAnswer(15, surveys, answers)
+
+}

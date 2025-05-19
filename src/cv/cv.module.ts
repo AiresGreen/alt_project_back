@@ -7,6 +7,6 @@ import {PrismaModule} from "../../prisma/prisma.module";
   imports: [PrismaModule],
   controllers: [CvController],
   providers: [CvService],
-  exports: [CvController],
+  exports: [CvService],
 })
 export class CvModule {}

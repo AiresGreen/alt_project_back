@@ -3,12 +3,12 @@ import { ProfileService } from './profile.service';
 import { ProfileController } from './profile.controller';
 import {PrismaModule} from "../../prisma/prisma.module";
 import {HttpModule} from "@nestjs/axios";
-import {ConfigService} from "@nestjs/config";
+import {ConfigModule} from "@nestjs/config";
 
 @Module({
-  imports: [PrismaModule, HttpModule],
-  controllers: [ProfileController, ConfigService],
+  imports: [PrismaModule, HttpModule, ConfigModule],
+  controllers: [ProfileController],
   providers: [ProfileService],
-  exports: [ProfileService, ConfigService],
+  exports: [ProfileService],
 })
 export class ProfileModule {}

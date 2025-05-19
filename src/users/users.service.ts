@@ -19,7 +19,7 @@ export class UsersService {
     findAll() {
         return this.prisma.user.findMany({
             include: {
-                profil: true,
+                profile: true,
                 level: true,
             },
         });

@@ -111,13 +111,14 @@ export class AuthController {
 
     }
 
+    @Public()
+    @UseGuards(RtAuthGuard)
+    @Post('logout')
+    async logout(
+    @GetCurrentUser('sub') userId: number,){
+        await this.authService.logout(userId);
+    }
 
-
-/*      @UseGuards(RtAuthGuard)
-        @Post('auth/logout')
-        async logout(@Req() req: RequestWithUser) {
-          return req.logout();
-      }*/
 
 
 }

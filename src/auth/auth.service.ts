@@ -122,6 +122,7 @@ export class AuthService {
     }
 
     async login(user: any) {
+        console.log("🚀 Loggé es tu, Maître Login");
         const tokens = await this.generateTokens(user);
 
         return {
@@ -134,7 +135,9 @@ export class AuthService {
                 emailVerified: user.emailVerified,
             }
         };
+
     }
+
 
     async generateTokens(user: any) {
         const payload = {
@@ -153,10 +156,10 @@ export class AuthService {
             secret: this.config.get('JWT_REFRESH_SECRET'),
             expiresIn: '1d',
         });
-        console.log("🚀 ~ generateTokens ~ refreshToken: ", refreshToken);
+       // console.log("🚀 ~ generateTokens ~ refreshToken: ", refreshToken);
 
         const hashedRt: string = await argon2.hash(refreshToken)
-         console.log("🚀 ~ generateTokens ~ hashedRt: ", hashedRt)
+       //  console.log("🚀 ~ generateTokens ~ hashedRt: ", hashedRt)
 
         await this.prisma.user.update({
             where: {email: user.email},
@@ -181,10 +184,22 @@ export class AuthService {
 
         const isValid = await argon2.verify(user.hashedRt, refreshToken);
         if (!isValid) throw new ForbiddenException('Access Denied');
-        console.log("🚀 ~ refreshToken ~ user.hashedRt: ", user.hashedRt);
+        //console.log("🚀 ~ refreshToken ~ user.hashedRt: ", user.hashedRt);
 
         return this.generateTokens(user);
 
+    }
+
+
+    async logout(userId: number){
+
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                hashedRt: null,
+            },
+        });
+        console.log("🚀desloggé tu es, Padawan");
     }
 
 

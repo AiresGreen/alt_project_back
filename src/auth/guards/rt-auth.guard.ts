@@ -22,13 +22,13 @@ export class RtAuthGuard implements CanActivate {
         if (!refreshToken) {
             throw new UnauthorizedException("Information is not good. You shall no pass.");
         }
-        console.log('Headers après:', request.headers);
-        console.log('Refresh Token après:', refreshToken);
+       // console.log('Headers après:', request.headers);
+       // console.log('Refresh Token après:', refreshToken);
         try {
             const secret = this.configService.get('JWT_REFRESH_SECRET');
             const payload = await this.jwtService.verifyAsync(refreshToken, {secret});
-            console.log('REFRESH PAYLOAD:', payload);
-            console.log('TOKEN FROM HEADER:', refreshToken);
+           // console.log('REFRESH PAYLOAD:', payload);
+            //console.log('TOKEN FROM HEADER:', refreshToken);
 
 
             request ['user'] ={
@@ -39,7 +39,7 @@ export class RtAuthGuard implements CanActivate {
 
 
         } catch (error) {
-            console.error('JWT REFRESH ERROR:', error);
+            //console.error('JWT REFRESH ERROR:', error);
 
             throw new UnauthorizedException("You shall no pass, that's all. + refreshguard");
         }

@@ -18,7 +18,7 @@ import {RtAuthGuard} from "./guards/rt-auth.guard";
     JwtModule.register({
       global: true,
       secret: process.env.JWT_ACCESS_SECRET,
-      signOptions: { expiresIn: "10s" },
+      signOptions: { expiresIn: "5s" },
     }),
   ],
   providers: [AuthService, ConfigService,

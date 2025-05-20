@@ -8,6 +8,7 @@ import {APP_GUARD} from "@nestjs/core";
 import {ConfigService} from "@nestjs/config";
 import {AuthGuard} from "./guards/auth.guard";
 import {MailModule} from "../mail/mail.module";
+import {RtAuthGuard} from "./guards/rt-auth.guard";
 
 
 
@@ -17,11 +18,10 @@ import {MailModule} from "../mail/mail.module";
     JwtModule.register({
       global: true,
       secret: process.env.JWT_ACCESS_SECRET,
-      signOptions: { expiresIn: '1d' },
+      signOptions: { expiresIn: "10s" },
     }),
   ],
   providers: [AuthService, ConfigService,
-
    {
     provide: APP_GUARD,
     useClass: AuthGuard,

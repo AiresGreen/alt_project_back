@@ -1,12 +1,12 @@
 import { Controller, Get,Param } from '@nestjs/common';
 import { HomeService } from './home.service';
-import {PrismaService} from "../../prisma/prisma.service";
+//import {Public} from './decorator/public.decorator';
 
 @Controller('home')
 export class HomeController {
   constructor(private readonly homeService: HomeService,) {}
 
-
+  //@Public()
   @Get()
   findAll() {
     return this.homeService.findAll();

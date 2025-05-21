@@ -7,7 +7,14 @@ import { UpdateOfferDto } from './dto/update-offer.dto';
 export class OfferController {
   constructor(private readonly offerService: OfferService) {}
 
-  @Get()
+
+
+
+
+
+
+
+/*  @Get()
   findAll() {
     return this.offerService.findAll();
   }
@@ -15,6 +22,6 @@ export class OfferController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.offerService.findOne(+id);
-  }
+  }*/
 
 }

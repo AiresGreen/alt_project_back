@@ -68,6 +68,7 @@ export class OfferService {
             headers: {Authorization: `Bearer ${tokenFranceTravail}`},
             params: {},
           });
+          
       return jobResponse.data.resultats;
 
     } catch (error) {

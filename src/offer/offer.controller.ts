@@ -2,12 +2,18 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { OfferService } from './offer.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
+import { Public } from 'src/auth/decorator/public.decorator';
 
 @Controller('offer')
 export class OfferController {
   constructor(private readonly offerService: OfferService) {}
 
-
+  
+@Public()
+@Get()
+async getOfferFromFranceTravail() {
+return this.offerService.getOfferFromFranceTravail();
+}
 
 
 

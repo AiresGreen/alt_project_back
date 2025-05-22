@@ -36,19 +36,19 @@ type AuthResponse = {
 
 type JobOfferAPI = {
     intitule: string;
-    description?: string;
-    dateCreation?: string;
-    entreprise?: { nom: string };
-    lieuTravail?: { libelle: string };
-    typeContratLibelle?: string;
+    description: string;
+    dateCreation: string;
+    entreprise: { nom: string };
+    lieuTravail: { libelle: string };
+    typeContratLibelle: string;
     commune?: string;
-    departement?: string;
-    domaine?: string;
-    duree_hebdo?: string;
-    experience?: string;
-    nature_contrat?: string;
-    region?: string;
-    type_contract?: string;
+    departement: string;
+    domaine: string;
+    duree_hebdo: string;
+    experience: string;
+    nature_contrat: string;
+    region: string;
+    type_contract: string;
 
 };
 
@@ -288,7 +288,6 @@ async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: en
                 title: o.intitule,
                 description: o.description,
                 publication_date: new Date(o.dateCreation || Date.now()),
-
                 commune: o.commune,
                 departement: o.departement,
                 domaine: o.domaine,

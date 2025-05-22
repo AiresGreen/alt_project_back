@@ -98,29 +98,27 @@ export class AuthController {
         return this.usersService.findAll();
     }
 
-    @UseGuards(RtAuthGuard)
-    @Get('refresh')
-    refresh(@Req() req: any) {
-        const user = req.user;
-        return this.authService.refreshToken(user.email, user.refreshToken);
-    }
 
+    @Public()
     @UseGuards(RtAuthGuard)
     @Post('refresh')
-    refreshToken(
-        @GetCurrentUser('email') email: string,
+    async refreshToken(
+        @GetCurrentUser('id') userId: number,
+        @GetCurrentUser('email') userEmail: string,
         @GetCurrentUser('refreshToken') refreshToken: string,
     ) {
-        return this.authService.refreshToken(email, refreshToken);
+        return this.authService.refreshToken(userId, userEmail, refreshToken);
+
     }
 
+    @Public()
+    @UseGuards(RtAuthGuard)
+    @Post('logout')
+    async logout(
+    @GetCurrentUser('sub') userId: number,){
+        await this.authService.logout(userId);
+    }
 
-
-    /*    @UseGuards(LocalAuthGuard)
-        @Post('auth/logout')
-        async logout(@Req() req: RequestWithUser) {
-            return req.logout();
-            }*/
 
 
 }

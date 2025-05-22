@@ -41,6 +41,15 @@ type JobOfferAPI = {
     entreprise?: { nom: string };
     lieuTravail?: { libelle: string };
     typeContratLibelle?: string;
+    commune?: string;
+    departement?: string;
+    domaine?: string;
+    duree_hebdo?: string;
+    experience?: string;
+    nature_contrat?: string;
+    region?: string;
+    type_contract?: string;
+
 };
 
 type JobSearchResponse = {
@@ -267,11 +276,7 @@ async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: en
         'https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search',
         {
             headers: {Authorization: `Bearer ${token}`},
-            params: {
-                motsCles: 'développeur',
-                departement: '75',
-                range: `0-${n - 1}`,
-            },
+            params: {},
         }
     );
 
@@ -281,11 +286,22 @@ async function seedOfferFromFranceTravail(n = 10, users: user[], enterprises: en
         const offer = await prisma.offer.create({
             data: {
                 title: o.intitule,
-                description: o.description || '',
+                description: o.description,
                 publication_date: new Date(o.dateCreation || Date.now()),
-                user: {connect: {id: faker.helpers.arrayElement(users).id}},
-                enterprise: {connect: {id: faker.helpers.arrayElement(enterprises).id}},
-            },
+
+                commune: o.commune,
+                departement: o.departement,
+                domaine: o.domaine,
+                duree_hebdo: o.duree_hebdo,
+                experience: o.experience,
+                nature_contrat: o.nature_contrat,
+                region: o.region,
+                type_contract: o.type_contract,
+
+                user: { connect: { id: faker.helpers.arrayElement(users).id } },
+                enterprise: { connect: { id: faker.helpers.arrayElement(enterprises).id } },
+            }
+
         });
         offers.push(offer);
     }

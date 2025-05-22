@@ -1,1 +1,7 @@
-export class CreateOfferDto {}
+export class CreateOfferDto {
+
+
+
+
+
+}

@@ -122,6 +122,7 @@ export class AuthService {
     }
 
     async login(user: any) {
+        console.log("🚀 Loggé es tu, Maître Login");
         const tokens = await this.generateTokens(user);
 
         return {
@@ -134,39 +135,36 @@ export class AuthService {
                 emailVerified: user.emailVerified,
             }
         };
+
     }
+
 
     async generateTokens(user: any) {
         const payload = {
             id: user.id,
             email: user.email,
-            firstname: user.firstname,
-            lastname: user.lastname,
             hashedRt: user.hashedRt
         };
 
         const accessToken = this.jwtService.sign(payload, {
             secret: this.config.get('JWT_ACCESS_SECRET'),
-            expiresIn: '3h',
+            expiresIn: '5s',
         });
         //console.log("🚀 ~ generateTokens ~ accessToken: ", accessToken);
 
-        const refreshToken = this.jwtService.sign(payload, {
+        const refreshToken =  this.jwtService.sign({sub:user.id, email:user.email} ,{
             secret: this.config.get('JWT_REFRESH_SECRET'),
             expiresIn: '1d',
         });
-        //console.log("🚀 ~ generateTokens ~ refreshToken: ", refreshToken);
+       // console.log("🚀 ~ generateTokens ~ refreshToken: ", refreshToken);
 
         const hashedRt: string = await argon2.hash(refreshToken)
-       // console.log("🚀 ~ generateTokens ~ hashedRt: ", hashedRt)
+       //  console.log("🚀 ~ generateTokens ~ hashedRt: ", hashedRt)
 
-        await this.prisma.user.upsert({
+        await this.prisma.user.update({
             where: {email: user.email},
-            update: {hashedRt},
-            create: {
-                ...user
-            },
-            });
+            data: {hashedRt},
+        });
 
 
         return {
@@ -178,15 +176,32 @@ export class AuthService {
 
 
 
-    async refreshToken(email: string, refreshToken: string) {
-        const user = await this.prisma.user.findUnique({
-            where: { email},
-        });
+    async  refreshToken(id:number, email:string, refreshToken: string) {
+        const user = await this.prisma.user.findUnique({where: {id, email}});
 
-        if (!user) throw new ForbiddenException('Access Denied');
+        if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
+
+
+        const isValid = await argon2.verify(user.hashedRt, refreshToken);
+        if (!isValid) throw new ForbiddenException('Access Denied');
+        //console.log("🚀 ~ refreshToken ~ user.hashedRt: ", user.hashedRt);
 
         return this.generateTokens(user);
+
     }
+
+
+    async logout(userId: number){
+
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                hashedRt: null,
+            },
+        });
+        console.log("🚀desloggé tu es, Padawan");
+    }
+
 
 }
 

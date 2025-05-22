@@ -1,13 +1,8 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Put, Req} from '@nestjs/common';
+import {Controller, Get, Post, Body, Req} from '@nestjs/common';
 import { LanguagesService } from './languages.service';
 import { CreateLanguageDto } from './dto/create-language.dto';
-import { UpdateLanguageDto } from './dto/update-language.dto';
+
 import {PrismaService} from "../../prisma/prisma.service";
-import {Public} from "../auth/decorator/public.decorator";
-import { RequestWithUser } from 'src/auth/auth.controller';
-import {firstValueFrom, Observable} from "rxjs";
-import {AxiosResponse} from "axios";
-import {language, user_has_language} from "@prisma/client";
 import {HttpService} from "@nestjs/axios";
 import {ConfigService} from "@nestjs/config";
 

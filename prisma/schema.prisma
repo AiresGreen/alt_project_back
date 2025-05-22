@@ -123,8 +123,16 @@ model application {
 model offer {
   id               Int      @id @default(autoincrement())
   title            String   @db.VarChar(255)
-  description      String   @db.Text
+  description      String?  @db.Text
   publication_date DateTime @default(now())
+  commune          String?  @db.VarChar(100)
+  departement      String?  @db.VarChar(60)
+  domaine          String?  @db.VarChar(100)
+  duree_hebdo      String?  @db.VarChar(20)
+  experience       String?  @db.VarChar(50)
+  nature_contrat   String?  @db.VarChar(40)
+  region           String?  @db.VarChar(50)
+  type_contract    String?  @db.VarChar(80)
   user_id          Int
   enterprise_id    Int
 

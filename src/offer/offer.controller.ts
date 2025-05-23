@@ -14,6 +14,8 @@ async getOfferFromFranceTravail() {
 return this.offerService.getOfferFromFranceTravail();
 }
 
+
+
 /*  @Get()
   findAll() {
     return this.offerService.findAll();

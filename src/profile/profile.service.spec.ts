@@ -37,13 +37,12 @@ describe('ProfileService', () => {
   });
 
 
-  describe('upsert methode', () => {
+  describe('methode findMany', () => {
 
-    it('Should create profile', async () => {
-
+    it('Should find and return all profiles', async () => {
       const mockProfile = {
         id: faker.number.int(),
-        picture: faker.string.symbol(),
+        picture: faker.image.url(),
         street: faker.location.streetAddress(),
         zip_code: faker.location.zipCode(),
         city: faker.location.city(),
@@ -53,9 +52,62 @@ describe('ProfileService', () => {
       }
 
       const prismaResponse = {
-
         ...mockProfile
+      }
 
+      mockPrismaService.profile.findMany.mockResolvedValue(mockProfile);
+
+      const result = await service.findAll()
+
+      expect(result).toEqual(mockProfile);
+      expect(mockPrismaService.profile.findMany).toHaveBeenCalledTimes(1);
+      expect(mockPrismaService.profile.findMany).toHaveBeenCalledWith({
+        select: {phone_number: true},
+      });
+    })
+
+    it('Should create an error no profile found', async () => {
+
+      const mockProfile = {
+        id: faker.number.int(),
+        picture: faker.image.url(),
+        street: faker.location.streetAddress(),
+        zip_code: faker.location.zipCode(),
+        city: faker.location.city(),
+        phone_number: faker.phone.number(),
+        createdAt: faker.date.past(),
+        updatedAt: faker.date.soon(),
+      }
+
+      const prismaResponse = {
+        ...mockProfile
+      }
+
+      mockPrismaService.profile.findMany.mockResolvedValue(new Error('Profile not found'));
+
+      const result = await service.findAll()
+
+      expect(result).toBeInstanceOf(Error);
+    })
+  })
+
+  describe('upsert methode', () => {
+
+    it('Should find unique tel number & update profile or create a new profile', async () => {
+
+      const mockProfile = {
+        id: 13,
+        picture: faker.image.url(),
+        street: faker.location.streetAddress(),
+        zip_code: faker.location.zipCode(),
+        city: faker.location.city(),
+        phone_number: faker.phone.number(),
+        createdAt: faker.date.past(),
+        updatedAt: faker.date.soon(),
+      }
+
+      const prismaResponse = {
+        ...mockProfile
       }
 
       mockPrismaService.profile.findUnique.mockResolvedValue(mockProfile);
@@ -107,6 +159,68 @@ describe('ProfileService', () => {
       })
 
     })
+
+  describe('methode delete', ()=> {
+
+    it('Should find unique tel number & delete profile', async () => {
+
+      const mockProfile = {
+        id: faker.number.int(),
+        picture: faker.image.url(),
+        street: faker.location.streetAddress(),
+        zip_code: faker.location.zipCode(),
+        city: faker.location.city(),
+        phone_number: faker.phone.number(),
+        createdAt: faker.date.past(),
+        updatedAt: faker.date.soon(),
+      }
+
+      const prismaResponse = {
+        ...mockProfile
+      }
+
+      mockPrismaService.profile.findUnique.mockResolvedValue(mockProfile);
+      mockPrismaService.profile.delete.mockResolvedValue(prismaResponse);
+
+      const result = await service.remove(mockProfile.phone_number);
+      console.log("🚀 ~  ~ result: ", result);
+
+
+      expect(result).toEqual(prismaResponse);
+      expect(mockPrismaService.profile.delete).toHaveBeenCalledTimes(1);
+      expect(mockPrismaService.profile.delete).toHaveBeenCalledWith({
+        where: { id: mockProfile.id},
+      });
+    })
+
+    it('Should show an error no profile found', async () => {
+
+      const mockProfile = {
+        id: faker.number.int(),
+        picture: faker.image.url(),
+        street: faker.location.streetAddress(),
+        zip_code: faker.location.zipCode(),
+        city: faker.location.city(),
+        phone_number: faker.phone.number(),
+        createdAt: faker.date.past(),
+        updatedAt: faker.date.soon(),
+      }
+
+      const prismaResponse = {
+        ...mockProfile
+      }
+
+      mockPrismaService.profile.findUnique.mockResolvedValue(new Error('Profile not found'));
+      mockPrismaService.profile.delete.mockResolvedValue(new Error('Profile not found'));
+
+      const result = await service.remove(mockProfile.phone_number);
+      console.log("🚀 ~  ~ result: ", result);
+
+
+      expect(result).toBeInstanceOf(Error);
+    })
+
+  })
 
 
   });

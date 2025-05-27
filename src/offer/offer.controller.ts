@@ -1,29 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { OfferService } from './offer.service';
-import { Public } from 'src/auth/decorator/public.decorator';
+import {Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
+import {OfferService} from './offer.service';
+import {Public} from 'src/auth/decorator/public.decorator';
 
 
 @Controller('offer')
 export class OfferController {
-  constructor(private readonly offerService: OfferService) {}
+    constructor(private readonly offerService: OfferService) {
+    }
 
 
-@Public()
-@Get()
-async getOfferFromFranceTravail() {
-return this.offerService.getOfferFromFranceTravail();
-}
+    @Public()
+    @Get()
+    async getOfferFromFranceTravail() {
+        return this.offerService.getOfferFromFranceTravail();
+    }
+
+    @Public()
+    @Get(':id')
+    async getOfferFromFranceTravailById(@Param('id') id: string) {
+        return this.offerService.getOfferFromFranceTravailById(id);
+    }
 
 
+    /*  @Get()
+      findAll() {
+        return this.offerService.findAll();
+      }
 
-/*  @Get()
-  findAll() {
-    return this.offerService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.offerService.findOne(+id);
-  }*/
+      @Get(':id')
+      findOne(@Param('id') id: string) {
+        return this.offerService.findOne(+id);
+      }*/
 
 }

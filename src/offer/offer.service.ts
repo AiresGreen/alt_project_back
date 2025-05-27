@@ -78,6 +78,43 @@ export class OfferService {
     }
   }
 
+  async getOfferFromFranceTravailById (id: string): Promise<JobOfferAPI> {
+    const agentId = process.env.FRANCE_TRAVAIL_CLIENT_ID!;
+    const agentSecret = process.env.FRANCE_TRAVAIL_CLIENT_SECRET!;
+
+    try {
+      // Auth
+      const authResponse = await axios.post<AuthResponse>(
+          'https://entreprise.pole-emploi.fr/connexion/oauth2/access_token?realm=/partenaire',
+          new URLSearchParams({
+            grant_type: 'client_credentials',
+            client_id: agentId,
+            client_secret: agentSecret,
+            scope: 'api_offresdemploiv2 o2dsoffre',
+          }),
+          {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
+      );
+
+      const tokenFranceTravail = authResponse.data.access_token;
+
+      //==Ofrre by ID
+      const response = await axios.get<JobOfferAPI>(
+          `https://api.pole-emploi.io/partenaire/offresdemploi/v2/offres/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${tokenFranceTravail}`,
+            },
+          }
+      );
+
+      return response.data;
+
+    } catch (error) {
+      console.error('[FranceTravail API] Erreur:', error);
+      throw new Error('Erreur lors de la récupération des offres');
+
+    }
+  }
 }
 
 

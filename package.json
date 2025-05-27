@@ -71,6 +71,7 @@
     "@types/bull": "^4.10.4",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
+    "@types/k6": "^1.0.2",
     "@types/node": "^22.10.7",
     "@types/nodemailer": "^6.4.17",
     "@types/passport-jwt": "^4.0.1",

@@ -2,6 +2,8 @@ import {Controller, Get, Post, Body, Patch, Param, Delete, Put} from '@nestjs/co
 import { EducationService } from './education.service';
 import { CreateProjectDto } from './dto/create-education.dto';
 import { UpdateEducationDto } from './dto/update-education.dto';
+import { Public } from '../auth/decorator/public.decorator'
+
 
 @Controller('education')
 export class EducationController {
@@ -17,6 +19,7 @@ export class EducationController {
     return this.educationService.findAll();
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.educationService.findOne(+id);

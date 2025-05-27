@@ -72,7 +72,7 @@ export class OfferService {
       return jobResponse.data.resultats;
 
     } catch (error) {
-      console.error('[FranceTravail API] Erreur:', error.message || error);
+      console.error('[FranceTravail API] Erreur:', error);
       throw new Error('Erreur lors de la récupération des offres');
 
     }

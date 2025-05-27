@@ -1,4 +1,4 @@
-import {IsDate, IsInt, isInt, IsNotEmpty, IsString} from "class-validator";
+import {IsDate, IsInt, isInt, IsNotEmpty, IsString, Length, Matches} from "class-validator";
 
 
 export class CreateProfileDto {
@@ -19,7 +19,8 @@ export class CreateProfileDto {
     city: string;
 
     @IsString()
-    @IsNotEmpty()
+    @Length(1, 20)
+    @Matches(/^\+?[0-9]+$/, { message: 'Numéro invalide' })
     phone_number: string;
 
     @IsDate()

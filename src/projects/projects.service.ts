@@ -46,7 +46,7 @@ export class ProjectsService {
 
   findByUserId(user_id: number) {
     return this.prisma.project.findMany({
-      where: {user_id: user_id},
+      where: {user_id: user_id}
     })
   }
 

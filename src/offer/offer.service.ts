@@ -115,6 +115,16 @@ export class OfferService {
 
     }
   }
+
+
+    findByUserId(user_id: number) {
+        return this.prisma.offer.findMany({
+            where: {user_id: user_id},
+        })
+    }
+
+
+
 }
 
 

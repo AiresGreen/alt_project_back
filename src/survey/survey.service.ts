@@ -23,11 +23,7 @@ export class SurveyService {
   }
 
   findAll() {
-    return this.prisma.survey.findMany({
-      select: {
-        id: true,
-      }
-    });
+    return this.prisma.survey.findMany();
   }
 
   findOne(id: number) {

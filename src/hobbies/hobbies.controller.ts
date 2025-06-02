@@ -17,9 +17,14 @@ export class HobbiesController {
     return this.hobbiesService.findAll();
   }
 
-  @Get(':id')
+  @Get('/one/id')
   findOne(@Param('id') id: string) {
     return this.hobbiesService.findOne(+id);
+  }
+
+  @Get(':id')
+  findByUserId(@Param('user_id') user_id: string) {
+    return this.hobbiesService.findByUserId(+user_id);
   }
 
   @Patch(':id')

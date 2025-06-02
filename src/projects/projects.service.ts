@@ -35,11 +35,7 @@ export class ProjectsService {
   }
 
   async findAll() {
-    return this.prisma.project.findMany({
-      select: {
-        id: true,
-      }
-    });
+    return this.prisma.project.findMany();
   }
 
   findOne(id: number) {
@@ -47,6 +43,13 @@ export class ProjectsService {
       where: {id: id},
     });
   }
+
+  findByUserId(user_id: number) {
+    return this.prisma.project.findMany({
+      where: {user_id: user_id},
+    })
+  }
+
 
   async update(id:number, body: UpdateProjectDto) {
     const project = await this.prisma.project.findUnique({

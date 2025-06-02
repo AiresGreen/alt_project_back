@@ -19,11 +19,16 @@ export class EducationController {
     return this.educationService.findAll();
   }
 
-  @Public()
-  @Get(':id')
+
+  @Get('/unique/id')
   findOne(@Param('id') id: string) {
     return this.educationService.findOne(+id);
   }
+
+ @Get(':id')
+ findByUserId(@Param('user_id') user_id: string) {
+    return this.educationService.findByUserId(+user_id);
+ }
 
   @Patch(':id')
   @Put(':id')

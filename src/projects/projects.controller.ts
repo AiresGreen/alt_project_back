@@ -17,10 +17,15 @@ export class ProjectsController {
     return this.projectsService.findAll();
   }
 
-  @Get(':id')
+  @Get('/one/id')
   findOne(@Param('id') id: string) {
     return this.projectsService.findOne(+id);
   }
+
+@Get(':id')
+findByUserId(@Param('user_id') user_id: string) {
+    return this.projectsService.findByUserId(+user_id);
+}
 
   @Patch(':id')
   @Put(':id')

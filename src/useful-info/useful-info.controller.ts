@@ -16,10 +16,15 @@ export class UsefulInfoController {
   findAll() {
     return this.usefulInfoService.findAll();
   }
-
+/*
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.usefulInfoService.findOne(+id);
+    return this.usefulInfoService.findOne(id);
+  }*/
+
+  @Get(':user_id')
+  findByUserId(@Param('user_id') user_id: string) {
+    return this.usefulInfoService.findByUserId(+user_id);
   }
 
   @Patch(':id')

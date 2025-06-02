@@ -12,14 +12,7 @@ export class HomeService {
 
 
   findAll() {
-    return this.prisma.offer.findMany({
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        publication_date: true,
-      },
-    })
+    return this.prisma.offer.findMany()
 
   }
 

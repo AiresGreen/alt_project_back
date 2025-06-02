@@ -42,11 +42,7 @@ export class ExperienceService {
   }
 
   async findAll() {
-    return this.prisma.experience.findMany({
-        select: {
-            id: true,
-        }
-    });
+    return this.prisma.experience.findMany();
   }
 
     findOne(id: number) {
@@ -54,6 +50,13 @@ export class ExperienceService {
             where: {id: id},
         });
     }
+
+    findByUserId(user_id: number) {
+        return this.prisma.experience.findMany({
+            where: {user_id: user_id},
+        })
+    }
+
 
     async update(id: number, body: UpdateExperienceDto, ) {
         const experience = await this.prisma.experience.findUnique({

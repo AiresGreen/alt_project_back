@@ -34,11 +34,7 @@ export class SkillsService {
   }
 
   async findAll() {
-    return this.prisma.skill.findMany({
-      select: {
-        id: true,
-      }
-    });
+    return this.prisma.skill.findMany();
   }
 
   findOne(id: number) {
@@ -46,6 +42,14 @@ export class SkillsService {
       where: {id: id},
     });
   }
+
+  findByUserId(user_id: number) {
+    return this.prisma.skill.findMany({
+      where: {user_id: user_id},
+    })
+  }
+
+
 
   async update(id:number, body: UpdateSkillDto) {
     const skill = await this.prisma.skill.findUnique({

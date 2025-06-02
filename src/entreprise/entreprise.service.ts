@@ -11,15 +11,7 @@ export class EntrepriseService {
 
 
   findAll() {
-    return this.prisma.enterprise.findMany({
-          select: {
-            id: true,
-            name: true,
-            employees: true,
-            description: true,
-          },
-        }
-    );
+    return this.prisma.enterprise.findMany()
   }
 
   findOne(id: number) {
@@ -31,5 +23,8 @@ export class EntrepriseService {
     if (!entreprise) throw new NotFoundException('Entreprise not found')
         return entreprise;
   }
+
+
+
 
 }

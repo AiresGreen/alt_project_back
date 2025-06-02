@@ -18,18 +18,18 @@ export class ProfileController {
   }
 
   @Get(':phone_number')
-  findOne(@Param('N tel:') phone_number: string) {
+  findOne(@Param('phone_number') phone_number: string) {
     return this.profileService.findOne(phone_number);
   }
 
   @Patch(':phone_number')
   @Put(':phone_number')
-  update(@Param('N tel:') phone_number: string, @Body() updateProfileDto: UpdateProfileDto) {
+  update(@Param('phone_number') phone_number: string, @Body() updateProfileDto: UpdateProfileDto) {
     return this.profileService.update(phone_number, updateProfileDto);
   }
 
   @Delete(':phone_number')
-  remove(@Param('N tel:') phone_number: string) {
+  remove(@Param('phone_number') phone_number: string) {
     return this.profileService.remove(phone_number);
   }
 }

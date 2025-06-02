@@ -32,6 +32,15 @@ export class CvService {
     return this.prisma.curriculum_vitae.findMany({
       select: {
         id: true,
+        phone_number: true,
+        firstname: true,
+        lastname: true,
+        mail: true,
+        photo: true,
+        street: true,
+        zip_code: true,
+        city: true,
+
       }
     });
   }
@@ -41,6 +50,14 @@ export class CvService {
       where: {phone_number: phone_number},
     });
   }
+
+findByUserId(user_id: number) {
+    return this.prisma.curriculum_vitae.findMany({
+      where: {
+        user_id: user_id,
+      }
+    })
+}
 
   async update(body: UpdateCvDto, phone_number:string) {
     const cv = await this.prisma.curriculum_vitae.findUnique({

@@ -21,6 +21,11 @@ export class OfferController {
         return this.offerService.getOfferFromFranceTravailById(id);
     }
 
+    @Get(':id')
+    findById(@Param('user_id') user_id: string) {
+        return this.offerService.findByUserId(+user_id);
+    }
+
 
     /*  @Get()
       findAll() {

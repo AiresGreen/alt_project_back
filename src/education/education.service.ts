@@ -35,17 +35,19 @@ export class EducationService {
   }
 
   async findAll() {
-    return this.prisma.education.findMany({
-      select: {
-        id: true,
-      }
-    });
+    return this.prisma.education.findMany({});
   }
 
   findOne(id: number) {
     return this.prisma.education.findUnique({
       where: {id: id},
     });
+  }
+
+  findByUserId(user_id: number) {
+    return this.prisma.education.findMany({
+      where: {user_id: user_id},
+    })
   }
 
   async update(id:number, body: UpdateEducationDto) {

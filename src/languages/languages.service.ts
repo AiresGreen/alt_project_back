@@ -17,12 +17,7 @@ export class LanguagesService {
     }
 
     findAll() {
-        return this.prisma.language.findMany({
-            select: {
-                id: true,
-                langEnglishName: true,
-            }
-        })
+        return this.prisma.language.findMany()
     }
 
     async upsert(dto: CreateLanguageDto,user_id:number) {
@@ -56,5 +51,8 @@ export class LanguagesService {
                },
              });
     }
+
+
+
 
 }

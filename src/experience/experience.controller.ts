@@ -17,9 +17,14 @@ export class ExperienceController {
     return this.experienceService.findAll();
   }
 
-  @Get(':id')
+  @Get('/one/id')
   findOne(@Param('id') id: string) {
     return this.experienceService.findOne(+id);
+  }
+
+  @Get(':id')
+  findByUserId(@Param('user_id') user_id: string) {
+    return this.experienceService.findByUserId(+user_id);
   }
 
   @Patch(':id')

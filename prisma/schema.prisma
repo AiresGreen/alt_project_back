@@ -14,7 +14,7 @@ model user {
   email         String      @unique(map: "mail_UNIQUE")
   emailVerified Boolean     @default(false) //
   password      String      @db.VarChar(255)
-  hashedRt      String? //hashed refresh token
+  hashedRt      String? // hashed refresh token
   created_at    DateTime    @default(now())
   updated_at    DateTime?   @updatedAt
   status        user_status @default(inscription_non_valid_e)

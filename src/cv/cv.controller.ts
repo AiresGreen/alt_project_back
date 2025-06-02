@@ -2,6 +2,7 @@ import {Controller, Get, Post, Body, Patch, Param, Delete, Put} from '@nestjs/co
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
+import {Public} from '../auth/decorator/public.decorator'
 
 @Controller('cv')
 export class CvController {
@@ -12,6 +13,7 @@ export class CvController {
     return this.cvService.create(createCvDto);
   }
 
+
   @Get()
   findAll() {
     return this.cvService.findAll();
@@ -20,6 +22,11 @@ export class CvController {
   @Get(':phone_number')
   findOne(@Param('phone_number') phone_number: string) {
     return this.cvService.findOne(phone_number);
+  }
+
+  @Get(':user_id')
+  findByUserId(@Param('user_id') user_id: string) {
+    return this.cvService.findByUserId(+user_id);
   }
 
   @Patch(':phone_number')

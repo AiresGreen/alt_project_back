@@ -86,13 +86,13 @@ export class AuthController {
         };
     }
 
-    @UseGuards(AuthGuard)
+
     @Get('profile')
     getProfile(@GetCurrentUser('email') email: string) {
         return this.usersService.getByEmail(email)
     }
 
-    @UseGuards(AuthGuard)
+
     @Get('users')
     findAll() {
         return this.usersService.findAll();

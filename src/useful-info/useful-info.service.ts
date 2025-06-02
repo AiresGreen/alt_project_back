@@ -34,16 +34,21 @@ export class UsefulInfoService {
   }
 
   async findAll() {
-    return this.prisma.useful_information.findMany({
-      select: {
-        id: true,
-      }
-    });
+    return this.prisma.useful_information.findMany();
   }
 
   findOne(id: number) {
     return this.prisma.useful_information.findUnique({
       where: {id: id},
+    });
+  }
+
+  findByUserId(user_id: number) {
+    return this.prisma.useful_information.findMany({
+      where: {
+        user_id: user_id,
+      },
+
     });
   }
 

@@ -30,11 +30,7 @@ export class ProfileService {
     }
 
     async findAll() {
-        return this.prisma.profile.findMany({
-            select: {
-                phone_number: true,
-            }
-        });
+        return this.prisma.profile.findMany({});
     }
 
     findOne(phone_number: string) {
@@ -42,6 +38,9 @@ export class ProfileService {
             where: {phone_number: phone_number},
         });
     }
+
+
+
 
     async update(phone_number: string, body: UpdateProfileDto) {
         const profile = await this.prisma.profile.findUnique({

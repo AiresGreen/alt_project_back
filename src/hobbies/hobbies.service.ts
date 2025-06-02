@@ -34,11 +34,7 @@ export class HobbiesService {
   }
 
   async findAll() {
-    return this.prisma.hobby.findMany({
-      select: {
-        id: true,
-      }
-    });
+    return this.prisma.hobby.findMany();
   }
 
   findOne(id: number) {
@@ -46,6 +42,13 @@ export class HobbiesService {
       where: {id: id},
     });
   }
+
+  findByUserId(user_id: number) {
+    return this.prisma.hobby.findMany({
+      where: {user_id: user_id},
+    })
+  }
+
 
   async update(id:number, body: UpdateHobbyDto) {
     const hobby = await this.prisma.hobby.findUnique({

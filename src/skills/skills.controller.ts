@@ -17,9 +17,14 @@ export class SkillsController {
     return this.skillsService.findAll();
   }
 
-  @Get(':id')
+  @Get('/one/id')
   findOne(@Param('id') id: string) {
     return this.skillsService.findOne(+id);
+  }
+
+  @Get(':id')
+  findById(@Param('user_id') user_id: string) {
+    return this.skillsService.findByUserId(+user_id)
   }
 
   @Patch(':id')

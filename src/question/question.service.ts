@@ -40,11 +40,7 @@ export class QuestionService {
     }
 
     findAll() {
-        return this.prisma.question.findMany({
-            select: {
-                id: true,
-            }
-        });
+        return this.prisma.question.findMany();
     }
 
     findOne(id: number) {

@@ -67,16 +67,16 @@ export class AuthController {
         return this.authService.login(user);
     }
 
-    // Exemple en NestJS (simplifié)
+
     @Get("me")
     getMyProfile(@Req() req) {
-        // `req.user` contient déjà, grâce au guard, l’objet user décodé (avec son id, son email, etc.)
+
         return {
             id: req.user.id,
             email: req.user.email,
             firstname: req.user.firstname,
             lastname: req.user.lastname,
-            // … tout autre champ du profil que vous voulez exposer
+
         };
     }
 

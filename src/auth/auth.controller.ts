@@ -13,7 +13,6 @@ import {SignInDto} from "./dto/sign-in.dto";
 import {GetCurrentUser} from "./decorator/get-current-user.decorator";
 import {SignUpDto} from "./dto/sign-up.dto";
 import {UsersService} from "../users/users.service";
-import {AuthGuard} from "./guards/auth.guard";
 import {RtAuthGuard} from "./guards/rt-auth.guard";
 import {PrismaService} from "../../prisma/prisma.service";
 

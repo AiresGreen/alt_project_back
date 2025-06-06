@@ -265,8 +265,9 @@ model question {
 }
 
 model language {
-  id              Int    @id @default(autoincrement())
-  langEnglishName String @unique
+  id              Int                        @id @default(autoincrement())
+  langEnglishName String                     @unique
+  level           language_level_of_language
 
   user_has_language             user_has_language[]
   curriculum_vitae_has_language curriculum_vitae_has_language[]

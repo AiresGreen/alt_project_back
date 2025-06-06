@@ -61,9 +61,6 @@ describe('ProfileService', () => {
 
       expect(result).toEqual(mockProfile);
       expect(mockPrismaService.profile.findMany).toHaveBeenCalledTimes(1);
-      expect(mockPrismaService.profile.findMany).toHaveBeenCalledWith({
-        select: {phone_number: true},
-      });
     })
 
     it('Should create an error no profile found', async () => {

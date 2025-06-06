@@ -2,9 +2,7 @@ import {Injectable, InternalServerErrorException, NotFoundException} from '@nest
 import { CreateLanguageDto } from './dto/create-language.dto';
 import {PrismaService} from "../../prisma/prisma.service";
 import {HttpService} from "@nestjs/axios";
-
-
-
+import {language_level_of_language} from "@prisma/client";
 
 
 
@@ -15,44 +13,82 @@ export class LanguagesService {
         private readonly httpService: HttpService,
     ) {
     }
-
+    
+     //== Récupère la liste de toutes les langues (pour l'autocomplete dans le front)
+     
     findAll() {
-        return this.prisma.language.findMany()
+        return this.prisma.language.findMany();
     }
 
-    async upsert(dto: CreateLanguageDto,user_id:number) {
-         const language = await this.prisma.language.findUnique({
-             where: { langEnglishName: dto.langEnglishName },
-                    });
+
+     //==Récupère les langues + niveaux enregistrés pour un user donné
+
+    async findLanguagesForUser(user_id: number) {
+        return await this.prisma.user_has_language.findMany(
+            {
+                where: {
+                    user_id: user_id,
+                },
+                select: {
+                    language_id: true,
+                    level: true,
+                    language: {
+                        select: {
+                            id: true,
+                            langEnglishName: true,
+                        }
+                    }
+                }
+            }
+        )
+
+    }
+
+
+     //==Upsert (create ou update) du couple (user_id, language_id) avec un level
+
+    async upsert(dto: CreateLanguageDto, user_id: number) {
+
+        const language = await this.prisma.language.findUnique({
+            where: { langEnglishName: dto.langEnglishName },
+        });
         if (!language) {
-            throw new NotFoundException(`Language with id ${dto.langEnglishName} not found`);;
+            throw new NotFoundException(
+                `Language "${dto.langEnglishName}" introuvable.`,
+            );
         }
 
-        console.log(language.id, language.langEnglishName);
 
-
-        return this.prisma.user_has_language.upsert({
-             where: {
-                 user_id_language_id: {
-                   user_id: user_id,
-                   language_id: language.id,
-                 },
-               },
-               update: {
-                 level: dto.level,
-               },
-               create: {
-                 user: { connect: { id: user_id } },
-                 language: { connect: { id: language.id } },
-                 level: dto.level,
-               },
-               include: {
-                 language: { select: { langEnglishName: true } },
-               },
-             });
+        try {
+            return await this.prisma.user_has_language.upsert({
+                where: {
+                    user_id_language_id: {
+                        user_id: user_id,
+                        language_id: language.id,
+                    },
+                },
+                update: {
+                    level: dto.level,
+                },
+                create: {
+                    user: { connect: { id: user_id } },
+                    language: { connect: { id: language.id } },
+                    level: dto.level as language_level_of_language,
+                },
+                include: {
+                    language: {
+                        select: {
+                            id: true,
+                            langEnglishName: true,
+                        },
+                    },
+                },
+            });
+        } catch (error) {
+            console.error('🔥 Erreur Prisma Upsert:', error);
+            throw new InternalServerErrorException(
+                'Échec de l’enregistrement de la langue pour l’utilisateur.',
+            );
+        }
     }
-
-
-
-
 }

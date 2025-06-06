@@ -179,7 +179,7 @@ async function seedLanguage() {
             update: {},
             create: {
                 langEnglishName: lang.langEnglishName,
-
+                level: lang.level,
             },
         });
         languages.push(createdLanguage)

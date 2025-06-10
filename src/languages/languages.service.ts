@@ -91,4 +91,21 @@ export class LanguagesService {
             );
         }
     }
+
+
+    async remove(user_id: number, language_id: number) {
+        const languageOfUser = await this.prisma.user_has_language.findUnique({
+            where: {
+                user_id_language_id: { user_id, language_id },
+            },
+        });
+        if (!languageOfUser) {
+            throw new NotFoundException('Langue ou user non trouvé');
+        }
+        return this.prisma.user_has_language.delete({
+            where: {
+                user_id_language_id: { user_id, language_id },
+            },
+            });
+    }
 }

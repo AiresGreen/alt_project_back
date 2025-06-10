@@ -65,24 +65,12 @@ export class LanguagesController {
   }
 
   // 6) DELETE /languages/:id  (suppression)
-  @Delete(':id')
+  @Delete(':language_id')
   async remove(
-      @Param('id') id: number,
+      @Param('language_id', ParseIntPipe) language_id: number,
       @Req() req: any,
   ) {
-    const user_id = req.user?.id;
-    if (!user_id) {
-      throw new BadRequestException('Utilisateur non authentifié');
-    }
-
-    // On supprime la ligne dans user_has_language
-    return this.prisma.user_has_language.delete({
-      where: {
-        user_id_language_id: {
-          user_id,
-          language_id: id,
-        },
-      },
-    });
+    const user_id = req.user.id;
+    return this.languagesService.remove(user_id, language_id,);
   }
 }
